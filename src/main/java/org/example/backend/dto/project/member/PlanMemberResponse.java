@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProjectMemberResponse {
+public class PlanMemberResponse {
     private Long id;
     private Long projectId;
     private Long userId;

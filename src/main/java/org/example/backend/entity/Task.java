@@ -21,8 +21,8 @@ public class Task {
     private LocalDateTime startDate;
     private LocalDateTime endDate;
 
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "status_id")
@@ -41,8 +41,8 @@ public class Task {
     private Set<User> members = new HashSet<>();
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
 
     @ManyToMany
     @JoinTable(

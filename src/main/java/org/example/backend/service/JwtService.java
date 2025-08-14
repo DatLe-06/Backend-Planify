@@ -3,6 +3,7 @@ package org.example.backend.service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import org.example.backend.entity.User;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -20,22 +21,22 @@ public class JwtService {
     @Value("${jwt.expiration}")
     private long jwtExpirationMs;
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(User userDetails) {
         return Jwts.builder()
-                .subject(userDetails.getUsername())
+                .subject(userDetails.getEmail())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
                 .signWith(getSigningKey())
                 .compact();
     }
 
-    public String extractUsername(String token) {
+    public String extractSubject(String token) {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public boolean isTokenValid(String token, UserDetails userDetails) {
-        final String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    public boolean isTokenValid(String token, User userDetails) {
+        final String email = extractSubject(token);
+        return (email.equals(userDetails.getEmail())) && !isTokenExpired(token);
     }
 
     public boolean isTokenExpired(String token) {

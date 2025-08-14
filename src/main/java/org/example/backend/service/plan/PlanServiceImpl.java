@@ -1,4 +1,4 @@
-package org.example.backend.service.project;
+package org.example.backend.service.plan;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -8,7 +8,7 @@ import org.example.backend.dto.project.ProjectResponse;
 import org.example.backend.dto.project.UpdateProjectRequest;
 import org.example.backend.entity.Action;
 import org.example.backend.entity.History;
-import org.example.backend.entity.Project;
+import org.example.backend.entity.Plan;
 import org.example.backend.entity.Tag;
 import org.example.backend.repository.*;
 import org.springframework.stereotype.Service;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
-public class ProjectServiceImpl implements ProjectService{
-    private final ProjectRepository projectRepository;
+public class PlanServiceImpl implements PlanService {
+    private final PlanRepository planRepository;
     private final PriorityRepository priorityRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
@@ -31,7 +31,7 @@ public class ProjectServiceImpl implements ProjectService{
     @Transactional
     @Override
     public ProjectResponse create(AddProjectRequest request) {
-        if (projectRepository.existsByName(request.getName())) {
+        if (planRepository.existsByName(request.getName())) {
             throw new RuntimeException("Project name already exists");
         }
 
@@ -39,94 +39,94 @@ public class ProjectServiceImpl implements ProjectService{
         history.setAction(Action.Project.CREATE);
         history.setChangedAt(LocalDateTime.now());
 
-        Project project = mapToEntity(request);
-        project.setCreateAt(LocalDateTime.now());
-        project.setUpdateAt(LocalDateTime.now());
+        Plan plan = mapToEntity(request);
+        plan.setCreatedAt(LocalDateTime.now());
+        plan.setUpdatedAt(LocalDateTime.now());
 
-        history.setProject(project);
-        history.setChangedBy(project.getOwner());
+        history.setPlan(plan);
+        history.setChangedBy(plan.getOwner());
 
-        Project data = projectRepository.save(project);
+        Plan data = planRepository.save(plan);
         historyRepository.save(history);
         return mapToDto(data);
     }
 
     @Override
     public ProjectResponse update(Long id, UpdateProjectRequest request) {
-        Project project = projectRepository.findById(id)
+        Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
-        project.setName(request.getName());
-        project.setDescription(request.getDescription());
-        project.setImageUrl(request.getImageUrl());
-        project.setUpdateAt(LocalDateTime.now());
+        plan.setName(request.getName());
+        plan.setDescription(request.getDescription());
+        plan.setImageUrl(request.getImageUrl());
+        plan.setUpdatedAt(LocalDateTime.now());
 
-        validateAndLoad(request, project);
+        validateAndLoad(request, plan);
 
-        return mapToDto(projectRepository.save(project));
+        return mapToDto(planRepository.save(plan));
     }
 
     @Override
     public void delete(Long id) {
-        if (!projectRepository.existsById(id)) {
+        if (!planRepository.existsById(id)) {
             throw new RuntimeException("Project not found");
         }
-        projectRepository.deleteById(id);
+        planRepository.deleteById(id);
     }
 
     @Override
     public ProjectResponse getById(Long id) {
-        return projectRepository.findById(id)
+        return planRepository.findById(id)
                 .map(this::mapToDto)
                 .orElseThrow(() -> new RuntimeException("Project not found"));
     }
 
     @Override
     public List<ProjectResponse> getAll() {
-        return projectRepository.findAll().stream()
+        return planRepository.findAll().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    private Project mapToEntity(AddProjectRequest dto) {
-        Project project = new Project();
-        project.setName(dto.getName());
-        project.setDescription(dto.getDescription());
-        project.setImageUrl(dto.getImageUrl());
+    private Plan mapToEntity(AddProjectRequest dto) {
+        Plan plan = new Plan();
+        plan.setName(dto.getName());
+        plan.setDescription(dto.getDescription());
+        plan.setImageUrl(dto.getImageUrl());
 
-        validateAndLoad(dto, project);
+        validateAndLoad(dto, plan);
 
-        return project;
+        return plan;
     }
 
-    private void validateAndLoad(BaseProject dto, Project project) {
-        project.setPriority(priorityRepository.findById(dto.getPriorityId())
+    private void validateAndLoad(BaseProject dto, Plan plan) {
+        plan.setPriority(priorityRepository.findById(dto.getPriorityId())
                 .orElseThrow(() -> new RuntimeException("Priority not found")));
 
         if (dto.getTagIds() != null) {
             Set<Tag> tags = new HashSet<>(tagRepository.findAllById(dto.getTagIds()));
-            project.setTags(tags);
+            plan.setTags(tags);
         }
 
         if (dto instanceof AddProjectRequest) {
-            project.setOwner(userRepository.findById(dto.getOwnerId())
+            plan.setOwner(userRepository.findById(dto.getOwnerId())
                     .orElseThrow(() -> new RuntimeException("Owner not found")));
         }
     }
 
-    private ProjectResponse mapToDto(Project project) {
+    private ProjectResponse mapToDto(Plan plan) {
         ProjectResponse dto = new ProjectResponse();
-        dto.setId(project.getId());
-        dto.setName(project.getName());
-        dto.setDescription(project.getDescription());
-        dto.setImageUrl(project.getImageUrl());
-        dto.setCreatedAt(project.getCreateAt());
-        dto.setUpdateAt(project.getUpdateAt());
+        dto.setId(plan.getId());
+        dto.setName(plan.getName());
+        dto.setDescription(plan.getDescription());
+        dto.setImageUrl(plan.getImageUrl());
+        dto.setCreatedAt(plan.getCreatedAt());
+        dto.setUpdateAt(plan.getUpdatedAt());
 
-        if (project.getPriority() != null) dto.setPriorityId(project.getPriority().getId());
-        if (project.getTags() != null) {
-            dto.setTagIds(project.getTags().stream().map(Tag::getId).collect(Collectors.toSet()));
+        if (plan.getPriority() != null) dto.setPriorityId(plan.getPriority().getId());
+        if (plan.getTags() != null) {
+            dto.setTagIds(plan.getTags().stream().map(Tag::getId).collect(Collectors.toSet()));
         }
-        if (project.getOwner() != null) dto.setOwnerId(project.getOwner().getId());
+        if (plan.getOwner() != null) dto.setOwnerId(plan.getOwner().getId());
         return dto;
     }
 }
