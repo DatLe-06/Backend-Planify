@@ -1,0 +1,132 @@
+package org.example.backend.init;
+
+import jakarta.persistence.EntityManager;
+import jakarta.transaction.Transactional;
+import lombok.AllArgsConstructor;
+import org.example.backend.entity.*;
+import org.example.backend.repository.*;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
+
+@Component
+@AllArgsConstructor
+public class DataInitializer implements CommandLineRunner {
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final EntityManager entityManager;
+    private final RoleRepository roleRepository;
+    private final StatusRepository statusRepository;
+    private final TagRepository tagRepository;
+    private final PriorityRepository priorityRepository;
+
+    @Transactional
+    @Override
+    public void run(String... args) throws Exception {
+        initUser();
+        initPriorities();
+        initTags();
+        initStatuses();
+    }
+
+    private void initUser() {
+        Role userRole = roleRepository.findByName("ROLE_USER").orElseGet(() -> {
+            Role newRole = new Role();
+            newRole.setName("ROLE_USER");
+            return roleRepository.save(newRole);
+        });
+
+        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
+            Role newRole = new Role();
+            newRole.setName("ROLE_ADMIN");
+            return roleRepository.save(newRole);
+        });
+
+        if (userRepository.findByUsername("user").isEmpty()) {
+            User user = new User();
+            user.setUsername("user");
+            user.setPassword(passwordEncoder.encode("<PASSWORD>"));
+            user.setRole(entityManager.merge(userRole));
+            userRepository.save(user);
+        }
+
+        if (userRepository.findByUsername("admin").isEmpty()) {
+            User admin = new User();
+            admin.setUsername("admin");
+            admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setRole(entityManager.merge(adminRole));
+
+            userRepository.save(admin);
+            System.out.println("Tạo tài khoản admin thành công!");
+        } else {
+            System.out.println("Tài khoản admin đã tồn tại, không cần tạo mới.");
+        }
+    }
+
+    private void initPriorities() {
+        if (priorityRepository.count() == 0) {
+            List<Priority> priorities = Arrays.asList(
+                    createPriority("Low", "Low priority for project", 1, PriorityType.PROJECT),
+                    createPriority("Medium", "Medium priority for project", 2, PriorityType.PROJECT),
+                    createPriority("High", "High priority for project", 3, PriorityType.PROJECT),
+                    createPriority("Low", "Low priority for task", 1, PriorityType.TASK),
+                    createPriority("Medium", "Medium priority for task", 2, PriorityType.TASK),
+                    createPriority("High", "High priority for task", 3, PriorityType.TASK)
+            );
+            priorityRepository.saveAll(priorities);
+            System.out.println("✅ Inserted default priorities");
+        }
+    }
+
+    private void initTags() {
+        if (tagRepository.count() == 0) {
+            List<Tag> tags = Arrays.asList(
+                    createTag("Home", "Home related tasks", TagType.PROJECT),
+                    createTag("Work", "Work related tasks", TagType.PROJECT),
+                    createTag("Job", "Job related tasks", TagType.TASK),
+                    createTag("Study", "Study related tasks", TagType.TASK)
+            );
+            tagRepository.saveAll(tags);
+            System.out.println("✅ Inserted default tags");
+        }
+    }
+
+    private void initStatuses() {
+        if (statusRepository.count() == 0) {
+            List<Status> statuses = Arrays.asList(
+                    createStatus("Not Started", "Task not started yet"),
+                    createStatus("In Progress", "Task is in progress"),
+                    createStatus("Completed", "Task completed successfully")
+            );
+            statusRepository.saveAll(statuses);
+            System.out.println("✅ Inserted default statuses");
+        }
+    }
+
+    private Priority createPriority(String name, String description, int order, PriorityType type) {
+        Priority p = new Priority();
+        p.setName(name);
+        p.setDescription(description);
+        p.setOrderPriority(order);
+        p.setType(type);
+        return p;
+    }
+
+    private Tag createTag(String name, String description, TagType type) {
+        Tag t = new Tag();
+        t.setName(name);
+        t.setDescription(description);
+        t.setType(type);
+        return t;
+    }
+
+    private Status createStatus(String name, String description) {
+        Status s = new Status();
+        s.setName(name);
+        s.setDescription(description);
+        return s;
+    }
+}
