@@ -19,6 +19,7 @@ public class Status {
     @Column(length = 20, unique = true)
     private String name;
     private String description;
+    private Integer orderStatus;
 
     @ManyToOne
     @JoinColumn(name = "user_id")

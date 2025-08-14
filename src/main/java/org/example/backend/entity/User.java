@@ -8,6 +8,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
@@ -23,6 +24,14 @@ public class User implements UserDetails {
     private String username;
     private String password;
     private LocalDate birthDate;
+
+    @Column(unique = true)
+    private String email;
+    private String avatarUrl;
+
+    private boolean enabled;
+    private LocalDateTime createdAt;
+    private LocalDateTime lastLoginAt;
 
     @ManyToOne
     @JoinColumn(name = "role_id")

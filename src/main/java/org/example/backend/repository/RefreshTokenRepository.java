@@ -19,4 +19,12 @@ public interface RefreshTokenRepository extends JpaRepository<RefreshToken, Stri
     void removeRefreshTokenByUser_Id(long userId);
 
     void removeRefreshTokenByUserUsername(String userUsername);
+
+    void removeRefreshTokenByUserEmail(String userEmail);
+
+    boolean existsByUserEmail(String userEmail);
+
+    boolean existsByUserEmailAndExpiryDateAfter(String userEmail, LocalDateTime expiryDateAfter);
+
+    RefreshToken findRefreshTokenByUserEmail(String userEmail);
 }

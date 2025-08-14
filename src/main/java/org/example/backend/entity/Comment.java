@@ -21,15 +21,15 @@ public class Comment {
     private String content;
 
     @Column(nullable = false)
-    private LocalDateTime createAt;
+    private LocalDateTime lastEdit;
 
     @ManyToOne
     @JoinColumn(name = "task_id")
     private Task task;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
 
     @OneToOne
     @JoinColumn(name = "user_id")

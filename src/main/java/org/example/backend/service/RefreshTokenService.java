@@ -28,13 +28,15 @@ public class RefreshTokenService {
     @Value("${refreshtoken.expiry.date}")
     private long timeActive;
 
-    public boolean existValidRefreshToken(String username) {
-        User user = userRepository.findByUsername(username).orElseThrow(() -> new UserNotFoundException("User not found"));
-        return refreshTokenRepository.findRefreshTokenByExpiryDateAfterAndUser(LocalDateTime.now(),user);
+    public boolean isValidRefreshToken(String email) {
+        return refreshTokenRepository.existsByUserEmailAndExpiryDateAfter(email, LocalDateTime.now());
     }
 
     public void add(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+        if (refreshTokenRepository.existsByUserEmail(user.getEmail())) {
+            refreshTokenRepository.removeRefreshTokenByUserEmail(user.getEmail());
+        }
 
         RefreshToken refreshToken = new RefreshToken();
         refreshToken.setUser(user);
@@ -49,7 +51,9 @@ public class RefreshTokenService {
         refreshTokenRepository.save(refreshToken);
     }
 
-    public void remove(String username) {
-        refreshTokenRepository.removeRefreshTokenByUserUsername(username);
+    public void remove(String email) {
+        RefreshToken refreshToken = refreshTokenRepository.findRefreshTokenByUserEmail(email);
+        if (refreshToken == null) throw new RuntimeException("Logout fail");
+        refreshTokenRepository.delete(refreshToken);
     }
 }

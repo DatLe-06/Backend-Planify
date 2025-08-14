@@ -7,11 +7,11 @@ import java.util.List;
 
 import lombok.RequiredArgsConstructor;
 import org.example.backend.entity.Comment;
-import org.example.backend.entity.Project;
+import org.example.backend.entity.Plan;
 import org.example.backend.entity.Task;
 import org.example.backend.entity.User;
 import org.example.backend.repository.CommentRepository;
-import org.example.backend.repository.ProjectRepository;
+import org.example.backend.repository.PlanRepository;
 import org.example.backend.repository.TaskRepository;
 import org.example.backend.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -23,14 +23,14 @@ import java.time.LocalDateTime;
 public class CommentServiceImpl implements CommentService {
     private final CommentRepository commentRepository;
     private final TaskRepository taskRepository;
-    private final ProjectRepository projectRepository;
+    private final PlanRepository planRepository;
     private final UserRepository userRepository;
 
     @Override
     public CommentResponse createComment(AddCommentRequest request) {
         Comment comment = new Comment();
         comment.setContent(request.getContent());
-        comment.setCreateAt(LocalDateTime.now());
+        comment.setLastEdit(LocalDateTime.now());
 
         if (request.getTaskId() != null) {
             Task task = taskRepository.findById(request.getTaskId())
@@ -39,9 +39,9 @@ public class CommentServiceImpl implements CommentService {
         }
 
         if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
+            Plan plan = planRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
-            comment.setProject(project);
+            comment.setPlan(plan);
         }
 
         User author = userRepository.findById(request.getAuthorId())
@@ -81,9 +81,9 @@ public class CommentServiceImpl implements CommentService {
         }
 
         if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
+            Plan plan = planRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
-            comment.setProject(project);
+            comment.setPlan(plan);
         }
 
         if (request.getAuthorId() != null) {
@@ -109,10 +109,10 @@ public class CommentServiceImpl implements CommentService {
         return new CommentResponse(
                 comment.getId(),
                 comment.getContent(),
-                comment.getCreateAt(),
+                comment.getLastEdit(),
                 comment.getAuthor() != null ? comment.getAuthor().getUsername() : null,
                 comment.getTask() != null ? comment.getTask().getId() : null,
-                comment.getProject() != null ? comment.getProject().getId() : null
+                comment.getPlan() != null ? comment.getPlan().getId() : null
         );
     }
 }

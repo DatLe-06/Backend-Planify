@@ -21,15 +21,12 @@ public class History {
     private Task task;
 
     @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    @JoinColumn(name = "plan_id")
+    private Plan plan;
 
     @Convert(converter = ActionConverter.class)
     @Column(nullable = false)
     private Enum<?> action;
-
-//    private String oldValue;
-//    private String newValue;
 
     private LocalDateTime changedAt;
 
