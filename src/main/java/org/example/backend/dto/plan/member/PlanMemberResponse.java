@@ -1,4 +1,4 @@
-package org.example.backend.dto.project.member;
+package org.example.backend.dto.plan.member;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

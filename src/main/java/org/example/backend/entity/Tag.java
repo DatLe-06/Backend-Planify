@@ -26,6 +26,6 @@ public class Tag {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private TagType type;
+    private Type type;
 }
 

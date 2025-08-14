@@ -21,6 +21,10 @@ public class Plan {
     private String description;
     private String imageUrl;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Color color = Color.DEFAULT;
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 

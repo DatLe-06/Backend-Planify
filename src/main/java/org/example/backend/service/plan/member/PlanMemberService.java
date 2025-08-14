@@ -1,7 +1,7 @@
 package org.example.backend.service.plan.member;
 
-import org.example.backend.dto.project.member.AddPlanMemberRequest;
-import org.example.backend.dto.project.member.PlanMemberResponse;
+import org.example.backend.dto.plan.member.AddPlanMemberRequest;
+import org.example.backend.dto.plan.member.PlanMemberResponse;
 
 import java.util.List;
 

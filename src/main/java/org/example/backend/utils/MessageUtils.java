@@ -11,6 +11,10 @@ import java.util.Locale;
 public class MessageUtils {
     private final MessageSource messageSource;
 
+    public String getMessage(String key, Object... args) {
+        return messageSource.getMessage(key, args, Locale.getDefault());
+    }
+
     public String getMessage(String key) {
         return messageSource.getMessage(key, null, Locale.getDefault());
     }

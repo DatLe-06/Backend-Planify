@@ -2,21 +2,21 @@ package org.example.backend.service.plan;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.example.backend.dto.project.AddProjectRequest;
-import org.example.backend.dto.project.BaseProject;
-import org.example.backend.dto.project.ProjectResponse;
-import org.example.backend.dto.project.UpdateProjectRequest;
-import org.example.backend.entity.Action;
-import org.example.backend.entity.History;
-import org.example.backend.entity.Plan;
-import org.example.backend.entity.Tag;
+import org.example.backend.dto.plan.AddPlanRequest;
+import org.example.backend.dto.plan.BasePlan;
+import org.example.backend.dto.plan.PlanResponse;
+import org.example.backend.dto.plan.UpdatePlanRequest;
+import org.example.backend.entity.*;
+import org.example.backend.exception.custom.*;
 import org.example.backend.repository.*;
+import org.example.backend.service.history.HistoryService;
+import org.example.backend.utils.MessageUtils;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -26,99 +26,88 @@ public class PlanServiceImpl implements PlanService {
     private final PriorityRepository priorityRepository;
     private final TagRepository tagRepository;
     private final UserRepository userRepository;
-    private final HistoryRepository historyRepository;
+    private final MessageUtils messageUtils;
+    private final HistoryService historyService;
 
     @Transactional
     @Override
-    public ProjectResponse create(AddProjectRequest request) {
+    public PlanResponse create(AddPlanRequest request) {
         if (planRepository.existsByName(request.getName())) {
-            throw new RuntimeException("Project name already exists");
+            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getName()));
         }
+        Plan plan = new Plan();
 
-        History history = new History();
-        history.setAction(Action.Project.CREATE);
-        history.setChangedAt(LocalDateTime.now());
-
-        Plan plan = mapToEntity(request);
+        validateAndLoad(request, plan);
         plan.setCreatedAt(LocalDateTime.now());
-        plan.setUpdatedAt(LocalDateTime.now());
 
-        history.setPlan(plan);
-        history.setChangedBy(plan.getOwner());
-
-        Plan data = planRepository.save(plan);
-        historyRepository.save(history);
-        return mapToDto(data);
+        planRepository.save(plan);
+        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.CREATE, plan.getOwner());
+        return mapToDto(plan);
     }
 
+    @Transactional
     @Override
-    public ProjectResponse update(Long id, UpdateProjectRequest request) {
+    public PlanResponse update(Long id, UpdatePlanRequest request) {
+        if (planRepository.existsByNameAndIdNot(request.getName(), id)) {
+            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getName()));
+        }
         Plan plan = planRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
-        plan.setName(request.getName());
-        plan.setDescription(request.getDescription());
-        plan.setImageUrl(request.getImageUrl());
-        plan.setUpdatedAt(LocalDateTime.now());
+                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
 
         validateAndLoad(request, plan);
 
-        return mapToDto(planRepository.save(plan));
+        planRepository.save(plan);
+        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.UPDATE, plan.getOwner());
+        return mapToDto(plan);
     }
 
+    @Transactional
     @Override
     public void delete(Long id) {
-        if (!planRepository.existsById(id)) {
-            throw new RuntimeException("Project not found");
-        }
+        Plan plan = planRepository.findById(id)
+                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
+        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.UPDATE, plan.getOwner());
         planRepository.deleteById(id);
     }
 
     @Override
-    public ProjectResponse getById(Long id) {
+    public PlanResponse getById(Long id) {
         return planRepository.findById(id)
                 .map(this::mapToDto)
-                .orElseThrow(() -> new RuntimeException("Project not found"));
+                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
     }
 
     @Override
-    public List<ProjectResponse> getAll() {
+    public List<PlanResponse> getAll() {
         return planRepository.findAll().stream()
                 .map(this::mapToDto)
                 .collect(Collectors.toList());
     }
 
-    private Plan mapToEntity(AddProjectRequest dto) {
-        Plan plan = new Plan();
-        plan.setName(dto.getName());
-        plan.setDescription(dto.getDescription());
-        plan.setImageUrl(dto.getImageUrl());
-
-        validateAndLoad(dto, plan);
-
-        return plan;
-    }
-
-    private void validateAndLoad(BaseProject dto, Plan plan) {
-        plan.setPriority(priorityRepository.findById(dto.getPriorityId())
-                .orElseThrow(() -> new RuntimeException("Priority not found")));
-
-        if (dto.getTagIds() != null) {
-            Set<Tag> tags = new HashSet<>(tagRepository.findAllById(dto.getTagIds()));
+    private void validateAndLoad(BasePlan request, Plan plan) {
+        plan.setName(request.getName());
+        plan.setUpdatedAt(LocalDateTime.now());
+        if (request.getImageUrl() != null) plan.setImageUrl(request.getImageUrl());
+        if (request.getDescription() != null) plan.setDescription(request.getDescription());
+        Priority priority = priorityRepository.findByIdAndType(request.getPriorityId(), Type.PLAN);
+        if (priority == null) throw new PriorityNotFoundException(messageUtils.getMessage("priority.not.found"));
+        plan.setPriority(priority);
+        if (request.getTagIds() != null) {
+            Set<Tag> tags = request.getTagIds().stream().map(tagId -> tagRepository.findById(tagId)
+                    .orElseThrow(() -> new TagNotFoundException(messageUtils.getMessage("tag.not.found")))).collect(Collectors.toSet());
             plan.setTags(tags);
         }
-
-        if (dto instanceof AddProjectRequest) {
-            plan.setOwner(userRepository.findById(dto.getOwnerId())
-                    .orElseThrow(() -> new RuntimeException("Owner not found")));
-        }
+        User user = userRepository.findById(request.getOwnerId())
+                .orElseThrow(() -> new UserNotFoundException(messageUtils.getMessage("user.not.found")));
+        plan.setOwner(user);
     }
 
-    private ProjectResponse mapToDto(Plan plan) {
-        ProjectResponse dto = new ProjectResponse();
+    private PlanResponse mapToDto(Plan plan) {
+        PlanResponse dto = new PlanResponse();
         dto.setId(plan.getId());
         dto.setName(plan.getName());
-        dto.setDescription(plan.getDescription());
-        dto.setImageUrl(plan.getImageUrl());
+        if (plan.getDescription() != null) dto.setDescription(plan.getDescription());
+        if (plan.getImageUrl() != null) dto.setImageUrl(plan.getImageUrl());
         dto.setCreatedAt(plan.getCreatedAt());
         dto.setUpdateAt(plan.getUpdatedAt());
 

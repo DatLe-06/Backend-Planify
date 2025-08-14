@@ -69,12 +69,12 @@ public class DataInitializer implements CommandLineRunner {
     private void initPriorities() {
         if (priorityRepository.count() == 0) {
             List<Priority> priorities = Arrays.asList(
-                    createPriority("Low", "Low priority for project", 1, PriorityType.PROJECT),
-                    createPriority("Medium", "Medium priority for project", 2, PriorityType.PROJECT),
-                    createPriority("High", "High priority for project", 3, PriorityType.PROJECT),
-                    createPriority("Low", "Low priority for task", 1, PriorityType.TASK),
-                    createPriority("Medium", "Medium priority for task", 2, PriorityType.TASK),
-                    createPriority("High", "High priority for task", 3, PriorityType.TASK)
+                    createPriority("Low", "Low priority for project", 1, Type.PLAN),
+                    createPriority("Medium", "Medium priority for project", 2, Type.PLAN),
+                    createPriority("High", "High priority for project", 3, Type.PLAN),
+                    createPriority("Low", "Low priority for task", 1, Type.TASK),
+                    createPriority("Medium", "Medium priority for task", 2, Type.TASK),
+                    createPriority("High", "High priority for task", 3, Type.TASK)
             );
             priorityRepository.saveAll(priorities);
             System.out.println("✅ Inserted default priorities");
@@ -84,10 +84,10 @@ public class DataInitializer implements CommandLineRunner {
     private void initTags() {
         if (tagRepository.count() == 0) {
             List<Tag> tags = Arrays.asList(
-                    createTag("Home", "Home related tasks", TagType.PROJECT),
-                    createTag("Work", "Work related tasks", TagType.PROJECT),
-                    createTag("Job", "Job related tasks", TagType.TASK),
-                    createTag("Study", "Study related tasks", TagType.TASK)
+                    createTag("Home", "Home related tasks", Type.PLAN),
+                    createTag("Work", "Work related tasks", Type.PLAN),
+                    createTag("Job", "Job related tasks", Type.TASK),
+                    createTag("Study", "Study related tasks", Type.TASK)
             );
             tagRepository.saveAll(tags);
             System.out.println("✅ Inserted default tags");
@@ -106,7 +106,7 @@ public class DataInitializer implements CommandLineRunner {
         }
     }
 
-    private Priority createPriority(String name, String description, int order, PriorityType type) {
+    private Priority createPriority(String name, String description, int order, Type type) {
         Priority p = new Priority();
         p.setName(name);
         p.setDescription(description);
@@ -115,7 +115,7 @@ public class DataInitializer implements CommandLineRunner {
         return p;
     }
 
-    private Tag createTag(String name, String description, TagType type) {
+    private Tag createTag(String name, String description, Type type) {
         Tag t = new Tag();
         t.setName(name);
         t.setDescription(description);

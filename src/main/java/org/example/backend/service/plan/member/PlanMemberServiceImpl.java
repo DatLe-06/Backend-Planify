@@ -2,8 +2,8 @@ package org.example.backend.service.plan.member;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.project.member.AddPlanMemberRequest;
-import org.example.backend.dto.project.member.PlanMemberResponse;
+import org.example.backend.dto.plan.member.AddPlanMemberRequest;
+import org.example.backend.dto.plan.member.PlanMemberResponse;
 import org.example.backend.entity.PlanMember;
 import org.example.backend.repository.PlanMemberRepository;
 import org.example.backend.repository.PlanRepository;

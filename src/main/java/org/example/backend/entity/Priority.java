@@ -23,6 +23,6 @@ public class Priority {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private PriorityType type;
+    private Type type;
 }
 
