@@ -11,6 +11,8 @@ import org.example.backend.exception.custom.UserNotFoundException;
 import org.example.backend.repository.RoleRepository;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.utils.MessageUtils;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -26,6 +28,20 @@ public class CustomUserDetailsService implements UserDetailsService {
     private RoleRepository roleRepository;
     private PasswordEncoder passwordEncoder;
     private MessageUtils messageUtils;
+
+    public User currentUser() {
+//        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+//        return userRepository.findByUsername(username)
+//                .orElseThrow(() -> new UserNotFoundException(messageUtils.getMessage("user.not.found")));
+
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        System.err.println(user.toString());
+        return user;
+    }
+
+    public User getById(long id) {
+        return userRepository.findById(id).orElseThrow(() -> new UserNotFoundException(messageUtils.getMessage("user.not.found")));
+    }
 
     @Override
     public UserDetails loadUserByUsername(String email) {

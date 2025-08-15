@@ -17,7 +17,7 @@ public class Plan {
     private Long id;
 
     @Column(length = 100, unique = true)
-    private String name;
+    private String title;
     private String description;
     private String imageUrl;
 

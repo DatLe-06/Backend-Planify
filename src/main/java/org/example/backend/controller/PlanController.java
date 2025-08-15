@@ -24,7 +24,7 @@ public class PlanController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlanResponse> update(@PathVariable Long id, @RequestBody UpdatePlanRequest request) {
+    public ResponseEntity<PlanResponse> update(@PathVariable Long id, @Valid @RequestBody UpdatePlanRequest request) {
         return ResponseEntity.ok(planService.update(id, request));
     }
 

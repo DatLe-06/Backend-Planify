@@ -1,14 +1,20 @@
 package org.example.backend.init;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.backend.entity.*;
 import org.example.backend.repository.*;
+import org.example.backend.utils.MessageUtils;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,6 +28,7 @@ public class DataInitializer implements CommandLineRunner {
     private final StatusRepository statusRepository;
     private final TagRepository tagRepository;
     private final PriorityRepository priorityRepository;
+    private final MessageUtils messageUtils;
 
     @Transactional
     @Override
@@ -45,18 +52,24 @@ public class DataInitializer implements CommandLineRunner {
             return roleRepository.save(newRole);
         });
 
-        if (userRepository.findByUsername("user").isEmpty()) {
+        if (userRepository.findByEmail("user@gmail.com").isEmpty()) {
             User user = new User();
             user.setUsername("user");
-            user.setPassword(passwordEncoder.encode("<PASSWORD>"));
+            user.setEmail("user@gmail.com");
+            user.setPassword(passwordEncoder.encode("password"));
+            user.setEnabled(true);
+            user.setCreatedAt(LocalDateTime.now());
             user.setRole(entityManager.merge(userRole));
             userRepository.save(user);
         }
 
-        if (userRepository.findByUsername("admin").isEmpty()) {
+        if (userRepository.findByEmail("admin@gmail.com").isEmpty()) {
             User admin = new User();
             admin.setUsername("admin");
+            admin.setEmail("admin@gmail.com");
             admin.setPassword(passwordEncoder.encode("admin123"));
+            admin.setEnabled(true);
+            admin.setCreatedAt(LocalDateTime.now());
             admin.setRole(entityManager.merge(adminRole));
 
             userRepository.save(admin);

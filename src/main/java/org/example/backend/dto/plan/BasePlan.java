@@ -12,7 +12,7 @@ import java.util.Set;
 public abstract class BasePlan {
     @Size(min = 2, max = 100, message = "{plan.name.invalid.size}")
     @NotNull(message = "{plan.name.invalid}")
-    private String name;
+    private String title;
 
     @Size(min = 2, max = 255, message = "{plan.description.invalid.size}")
     @NotBlank(message = "{plan.description.not.blank}")
@@ -24,7 +24,7 @@ public abstract class BasePlan {
     @NotNull(message = "{plan.priority.invalid}")
     private Integer priorityId;
 
-    @Size(min = 1, message = "{plan.tags.invalid}")
+    @Size(min = 1, message = "{tags.invalid}")
     private Set<@NotNull Long> tagIds;
 
     @NotNull(message = "{plan.owner.invalid}")

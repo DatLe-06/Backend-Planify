@@ -22,10 +22,12 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String username;
+
+    @Column(nullable = false)
     private String password;
     private LocalDate birthDate;
 
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
     private String avatarUrl;
 
@@ -40,5 +42,21 @@ public class User implements UserDetails {
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.getName()));
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", username='" + username + '\'' +
+                ", password='" + password + '\'' +
+                ", birthDate=" + birthDate +
+                ", email='" + email + '\'' +
+                ", avatarUrl='" + avatarUrl + '\'' +
+                ", enabled=" + enabled +
+                ", createdAt=" + createdAt +
+                ", lastLoginAt=" + lastLoginAt +
+                ", role=" + role +
+                '}';
     }
 }

@@ -1,5 +1,6 @@
 package org.example.backend.service.plan;
 
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.backend.dto.plan.AddPlanRequest;
@@ -30,8 +31,8 @@ public class PlanServiceImpl implements PlanService {
     @Transactional
     @Override
     public PlanResponse create(AddPlanRequest request) {
-        if (planRepository.existsByName(request.getName())) {
-            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getName()));
+        if (planRepository.existsByTitle(request.getTitle())) {
+            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getTitle()));
         }
         Plan plan = new Plan();
 
@@ -39,15 +40,15 @@ public class PlanServiceImpl implements PlanService {
         plan.setCreatedAt(LocalDateTime.now());
 
         planRepository.save(plan);
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.CREATE, plan.getOwner());
+        historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.CREATE, plan.getOwner());
         return mapToDto(plan);
     }
 
     @Transactional
     @Override
     public PlanResponse update(Long id, UpdatePlanRequest request) {
-        if (planRepository.existsByNameAndIdNot(request.getName(), id)) {
-            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getName()));
+        if (planRepository.existsByTitleAndIdNot(request.getTitle(), id)) {
+            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getTitle()));
         }
         Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
@@ -55,7 +56,7 @@ public class PlanServiceImpl implements PlanService {
         validateAndLoad(request, plan);
 
         planRepository.save(plan);
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.UPDATE, plan.getOwner());
+        historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.UPDATE, plan.getOwner());
         return mapToDto(plan);
     }
 
@@ -64,7 +65,7 @@ public class PlanServiceImpl implements PlanService {
     public String delete(Long id) {
         Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
-        History history = historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.DELETE, plan.getOwner());
+        History history = historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.DELETE, plan.getOwner());
         planRepository.deleteById(id);
         return messageUtils.getMessage("delete.plan.success", history.getName());
     }
@@ -83,8 +84,14 @@ public class PlanServiceImpl implements PlanService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public Plan findById(Long id) {
+        return planRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(messageUtils.getMessage("plan.not.found")));
+    }
+
     private void validateAndLoad(BasePlan request, Plan plan) {
-        plan.setName(request.getName());
+        plan.setTitle(request.getTitle());
         plan.setUpdatedAt(LocalDateTime.now());
         if (request.getImageUrl() != null) plan.setImageUrl(request.getImageUrl());
         if (request.getDescription() != null) plan.setDescription(request.getDescription());
@@ -104,7 +111,7 @@ public class PlanServiceImpl implements PlanService {
     private PlanResponse mapToDto(Plan plan) {
         PlanResponse dto = new PlanResponse();
         dto.setId(plan.getId());
-        dto.setName(plan.getName());
+        dto.setName(plan.getTitle());
         if (plan.getDescription() != null) dto.setDescription(plan.getDescription());
         if (plan.getImageUrl() != null) dto.setImageUrl(plan.getImageUrl());
         dto.setCreatedAt(plan.getCreatedAt());

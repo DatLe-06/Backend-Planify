@@ -16,7 +16,9 @@ public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    private String content;
+
+    private String title;
+    private String description;
 
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -51,4 +53,8 @@ public class Task {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags = new HashSet<>();
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User createdBy;
 }
