@@ -1,8 +1,8 @@
 package org.example.backend.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.project.member.AddPlanMemberRequest;
-import org.example.backend.dto.project.member.PlanMemberResponse;
+import org.example.backend.dto.plan.member.AddPlanMemberRequest;
+import org.example.backend.dto.plan.member.PlanMemberResponse;
 import org.example.backend.service.plan.member.PlanMemberService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

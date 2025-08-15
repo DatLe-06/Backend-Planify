@@ -15,8 +15,8 @@ public class ActionConverter implements AttributeConverter<Enum<?>, String> {
         for (Action.Task e : Action.Task.values()) {
             STRING_TO_ENUM.put("TASK_" + e.name(), e);
         }
-        for (Action.Project e : Action.Project.values()) {
-            STRING_TO_ENUM.put("PROJECT_" + e.name(), e);
+        for (Action.Plan e : Action.Plan.values()) {
+            STRING_TO_ENUM.put("PLAN_" + e.name(), e);
         }
         for (Action.Tag e : Action.Tag.values()) {
             STRING_TO_ENUM.put("TAG_" + e.name(), e);
@@ -30,7 +30,7 @@ public class ActionConverter implements AttributeConverter<Enum<?>, String> {
     public String convertToDatabaseColumn(Enum<?> attribute) {
         if (attribute == null) return null;
         if (attribute instanceof Action.Task) return "TASK_" + attribute.name();
-        if (attribute instanceof Action.Project) return "PROJECT_" + attribute.name();
+        if (attribute instanceof Action.Plan) return "PLAN_" + attribute.name();
         if (attribute instanceof Action.Tag) return "TAG_" + attribute.name();
         if (attribute instanceof Action.Member) return "MEMBER_" + attribute.name();
         throw new IllegalArgumentException("Unknown enum type: " + attribute.getClass());

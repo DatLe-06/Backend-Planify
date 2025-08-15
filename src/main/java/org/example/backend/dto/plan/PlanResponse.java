@@ -1,4 +1,4 @@
-package org.example.backend.dto.project;
+package org.example.backend.dto.plan;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
@@ -9,7 +9,7 @@ import java.util.Set;
 
 @Getter
 @Setter
-public class ProjectResponse {
+public class PlanResponse {
     private Long id;
     private String name;
     private String description;
