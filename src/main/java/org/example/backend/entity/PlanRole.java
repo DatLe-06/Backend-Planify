@@ -1,5 +1,5 @@
 package org.example.backend.entity;
 
-public enum ProjectRole {
+public enum PlanRole {
     All, EDITOR, VIEWER
 }

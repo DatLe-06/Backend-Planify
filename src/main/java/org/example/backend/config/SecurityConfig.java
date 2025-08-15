@@ -2,7 +2,9 @@ package org.example.backend.config;
 
 import lombok.AllArgsConstructor;
 import org.example.backend.config.filter.JwtFilter;
+import org.example.backend.service.CustomUserDetailsService;
 import org.example.backend.service.JwtService;
+import org.example.backend.service.RefreshTokenService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -11,7 +13,6 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
@@ -50,7 +51,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public JwtFilter jwtFilter(JwtService jwtService, UserDetailsService userDetailsService) {
-        return new JwtFilter(jwtService, userDetailsService);
+    public JwtFilter jwtFilter(JwtService jwtService, CustomUserDetailsService userDetailsService, RefreshTokenService refreshTokenService) {
+        return new JwtFilter(jwtService, userDetailsService, refreshTokenService);
     }
 }

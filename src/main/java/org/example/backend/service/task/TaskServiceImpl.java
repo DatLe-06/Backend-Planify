@@ -21,7 +21,7 @@ public class TaskServiceImpl implements TaskService{
     private final StatusRepository statusRepository;
     private final PriorityRepository priorityRepository;
     private final UserRepository userRepository;
-    private final ProjectRepository projectRepository;
+    private final PlanRepository planRepository;
     private final TagRepository tagRepository;
     private final SubTaskRepository subTaskRepository;
 
@@ -31,7 +31,7 @@ public class TaskServiceImpl implements TaskService{
         task.setContent(request.getContent());
         task.setStartDate(request.getStartDate());
         task.setEndDate(request.getEndDate());
-        task.setCreateAt(LocalDateTime.now());
+        task.setCreatedAt(LocalDateTime.now());
 
         // Set Status
         if (request.getStatusId() != null) {
@@ -55,9 +55,9 @@ public class TaskServiceImpl implements TaskService{
 
         // Set Project
         if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
+            Plan plan = planRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
-            task.setProject(project);
+            task.setPlan(plan);
         }
 
         // Set Tags
@@ -77,7 +77,7 @@ public class TaskServiceImpl implements TaskService{
         task.setContent(request.getContent());
         task.setStartDate(request.getStartDate());
         task.setEndDate(request.getEndDate());
-        task.setUpdateAt(LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now());
 
         // Set Status
         if (request.getStatusId() != null) {
@@ -101,9 +101,9 @@ public class TaskServiceImpl implements TaskService{
 
         // Set Project
         if (request.getProjectId() != null) {
-            Project project = projectRepository.findById(request.getProjectId())
+            Plan plan = planRepository.findById(request.getProjectId())
                     .orElseThrow(() -> new RuntimeException("Project not found"));
-            task.setProject(project);
+            task.setPlan(plan);
         }
 
         // Set Tags
@@ -147,12 +147,12 @@ public class TaskServiceImpl implements TaskService{
 
         response.setStartDate(task.getStartDate());
         response.setEndDate(task.getEndDate());
-        response.setCreatedAt(task.getCreateAt());
-        response.setUpdateAt(task.getUpdateAt());
+        response.setCreatedAt(task.getCreatedAt());
+        response.setUpdateAt(task.getUpdatedAt());
         response.setStatusName(task.getStatus() != null ? task.getStatus().getName() : null);
         response.setPriorityName(task.getPriority() != null ? task.getPriority().getName() : null);
         response.setMemberNames(task.getMembers().stream().map(User::getUsername).collect(Collectors.toSet()));
-        response.setProjectName(task.getProject() != null ? task.getProject().getName() : null);
+        response.setProjectName(task.getPlan() != null ? task.getPlan().getName() : null);
         response.setTagNames(task.getTags().stream().map(Tag::getName).collect(Collectors.toSet()));
         return response;
     }

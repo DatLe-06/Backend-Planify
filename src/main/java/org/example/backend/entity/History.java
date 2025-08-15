@@ -16,20 +16,13 @@ public class History {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne
-    @JoinColumn(name = "task_id")
-    private Task task;
-
-    @ManyToOne
-    @JoinColumn(name = "project_id")
-    private Project project;
+    private Long taskId;
+    private Long planId;
+    private String name;
 
     @Convert(converter = ActionConverter.class)
     @Column(nullable = false)
     private Enum<?> action;
-
-//    private String oldValue;
-//    private String newValue;
 
     private LocalDateTime changedAt;
 

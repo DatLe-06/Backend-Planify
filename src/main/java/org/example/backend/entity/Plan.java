@@ -8,10 +8,10 @@ import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
-@Table(name = "projects")
+@Table(name = "plans")
 @Getter
 @Setter
-public class Project {
+public class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -21,8 +21,12 @@ public class Project {
     private String description;
     private String imageUrl;
 
-    private LocalDateTime createAt;
-    private LocalDateTime updateAt;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Color color = Color.DEFAULT;
+
+    private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 
     @ManyToOne
     @JoinColumn(name = "priority_id")
@@ -30,8 +34,8 @@ public class Project {
 
     @ManyToMany
     @JoinTable(
-            name = "project_tags",
-            joinColumns = @JoinColumn(name = "project_id"),
+            name = "plan_tags",
+            joinColumns = @JoinColumn(name = "plan_id"),
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     private Set<Tag> tags;

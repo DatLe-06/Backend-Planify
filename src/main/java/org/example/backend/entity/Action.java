@@ -12,12 +12,13 @@ public class Action {
         REMOVE_SUB_TASK
     }
 
-    public enum Project {
+    public enum Plan {
         UPDATE_NAME,
         UPDATE_DESCRIPTION,
         UPDATE_IMAGE_URL,
         UPDATE_PRIORITY,
         UPDATE,
+        Delete,
         CREATE
     }
 
