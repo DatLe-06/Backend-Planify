@@ -18,7 +18,7 @@ public class Action {
         UPDATE_IMAGE_URL,
         UPDATE_PRIORITY,
         UPDATE,
-        Delete,
+        DELETE,
         CREATE
     }
 

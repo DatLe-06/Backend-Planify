@@ -11,10 +11,8 @@ import org.example.backend.exception.custom.*;
 import org.example.backend.repository.*;
 import org.example.backend.service.history.HistoryService;
 import org.example.backend.utils.MessageUtils;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -63,11 +61,12 @@ public class PlanServiceImpl implements PlanService {
 
     @Transactional
     @Override
-    public void delete(Long id) {
+    public String delete(Long id) {
         Plan plan = planRepository.findById(id)
                 .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.UPDATE, plan.getOwner());
+        History history = historyService.createHistory(Type.PLAN, plan.getId(), plan.getName(), Action.Plan.DELETE, plan.getOwner());
         planRepository.deleteById(id);
+        return messageUtils.getMessage("delete.plan.success", history.getName());
     }
 
     @Override

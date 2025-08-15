@@ -15,7 +15,7 @@ public class HistoryServiceImpl implements HistoryService{
     private final HistoryRepository historyRepository;
 
     @Override
-    public void createHistory(Type targetType, Long targetId, String name, Enum<?> action, User by) {
+    public History createHistory(Type targetType, Long targetId, String name, Enum<?> action, User by) {
         History history = new History();
         if (targetType.equals(Type.TASK)) history.setTaskId(targetId);
         else history.setPlanId(targetId);
@@ -24,6 +24,6 @@ public class HistoryServiceImpl implements HistoryService{
         history.setAction(action);
         history.setChangedBy(by);
         history.setChangedAt(LocalDateTime.now());
-        historyRepository.save(history);
+        return historyRepository.save(history);
     }
 }
