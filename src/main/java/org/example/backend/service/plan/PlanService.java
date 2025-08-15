@@ -9,7 +9,7 @@ import java.util.List;
 public interface PlanService {
     PlanResponse create(AddPlanRequest request);
     PlanResponse update(Long id, UpdatePlanRequest request);
-    void delete(Long id);
+    String delete(Long id);
     PlanResponse getById(Long id);
     List<PlanResponse> getAll();
 }
