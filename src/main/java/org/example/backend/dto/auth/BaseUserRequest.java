@@ -9,12 +9,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public abstract class BaseUserRequest {
-    @NotNull(message = "Email cannot be null")
     @NotBlank(message = "Email cannot be empty")
     @Email(message = "Email is not valid")
     private String email;
 
-    @NotNull(message = "Password cannot be null")
     @NotBlank(message = "Password cannot be empty")
     private String password;
 }

@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -29,7 +28,7 @@ public class User implements UserDetails {
 
     @Column(unique = true, nullable = false)
     private String email;
-    private String avatarUrl;
+    private String avatarPublicId;
 
     private boolean enabled;
     private LocalDateTime createdAt;
@@ -52,7 +51,7 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", birthDate=" + birthDate +
                 ", email='" + email + '\'' +
-                ", avatarUrl='" + avatarUrl + '\'' +
+                ", avatarUrl='" + avatarPublicId + '\'' +
                 ", enabled=" + enabled +
                 ", createdAt=" + createdAt +
                 ", lastLoginAt=" + lastLoginAt +

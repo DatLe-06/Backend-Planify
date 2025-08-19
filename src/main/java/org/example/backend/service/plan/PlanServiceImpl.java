@@ -1,127 +1,133 @@
 package org.example.backend.service.plan;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.example.backend.dto.plan.AddPlanRequest;
-import org.example.backend.dto.plan.BasePlan;
+import org.example.backend.dto.plan.PlanRequest;
 import org.example.backend.dto.plan.PlanResponse;
 import org.example.backend.dto.plan.UpdatePlanRequest;
 import org.example.backend.entity.*;
-import org.example.backend.exception.custom.*;
-import org.example.backend.repository.*;
+import org.example.backend.exception.custom.PlanNameDuplicateException;
+import org.example.backend.exception.custom.PlanNotFoundException;
+import org.example.backend.mapper.PlanMapper;
+import org.example.backend.repository.PlanRepository;
+import org.example.backend.service.UploadService;
 import org.example.backend.service.history.HistoryService;
+import org.example.backend.service.priority.PriorityService;
+import org.example.backend.service.tag.TagService;
+import org.example.backend.service.user.UserService;
 import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
-import java.time.LocalDateTime;
-import java.util.*;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
 public class PlanServiceImpl implements PlanService {
     private final PlanRepository planRepository;
-    private final PriorityRepository priorityRepository;
-    private final TagRepository tagRepository;
-    private final UserRepository userRepository;
     private final MessageUtils messageUtils;
     private final HistoryService historyService;
+    private final PlanMapper planMapper;
+    private final UploadService uploadService;
+    private final UserService userService;
+    private final PriorityService priorityService;
+    private final TagService tagService;
+
+    @Override
+    public Plan findById(Long id) {
+        return planRepository.findById(id)
+                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
+    }
 
     @Transactional
     @Override
     public PlanResponse create(AddPlanRequest request) {
-        if (planRepository.existsByTitle(request.getTitle())) {
-            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getTitle()));
-        }
+        User user = userService.getCurrentUser();
+
+        validateDuplicateTitle(request.getTitle(), null);
+
         Plan plan = new Plan();
+        String coverPublicId = handleCoverUpload(request.getCoverFile(), null, user);
+        Priority priority = handlePriority(request);
+        Set<Tag> tags = handleTags(request);
 
-        validateAndLoad(request, plan);
-        plan.setCreatedAt(LocalDateTime.now());
-
+        planMapper.toEntity(request, priority, tags, coverPublicId, user, plan);
         planRepository.save(plan);
+
         historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.CREATE, plan.getOwner());
-        return mapToDto(plan);
+        return planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(coverPublicId));
     }
 
     @Transactional
     @Override
     public PlanResponse update(Long id, UpdatePlanRequest request) {
-        if (planRepository.existsByTitleAndIdNot(request.getTitle(), id)) {
-            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", request.getTitle()));
-        }
-        Plan plan = planRepository.findById(id)
-                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
+        User user = userService.getCurrentUser();
+        Plan plan = findById(id);
 
-        validateAndLoad(request, plan);
+        validateDuplicateTitle(request.getTitle(), id);
+
+        String coverPublicId = handleCoverUpload(request.getCoverFile(), plan.getCoverPublicId(), user);
+        Priority priority = handlePriority(request);
+        Set<Tag> tags = handleTags(request);
+
+        planMapper.toEntity(request, priority, tags, coverPublicId, user, plan);
 
         planRepository.save(plan);
         historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.UPDATE, plan.getOwner());
-        return mapToDto(plan);
+        return planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(coverPublicId));
     }
 
     @Transactional
     @Override
     public String delete(Long id) {
-        Plan plan = planRepository.findById(id)
-                .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
+        Plan plan = findById(id);
+        String coverPublicId = plan.getCoverPublicId();
+        if (coverPublicId != null) uploadService.delete(coverPublicId);
+
         History history = historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.DELETE, plan.getOwner());
-        planRepository.deleteById(id);
+        planRepository.delete(plan);
+
         return messageUtils.getMessage("delete.plan.success", history.getName());
     }
 
     @Override
     public PlanResponse getById(Long id) {
         return planRepository.findById(id)
-                .map(this::mapToDto)
+                .map(plan -> planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(plan.getCoverPublicId())))
                 .orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
     }
 
     @Override
     public List<PlanResponse> getAll() {
         return planRepository.findAll().stream()
-                .map(this::mapToDto)
+                .map(plan -> planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(plan.getCoverPublicId())))
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public Plan findById(Long id) {
-        return planRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(messageUtils.getMessage("plan.not.found")));
+    private void validateDuplicateTitle(String title, Long id) {
+        boolean exists = (id == null) ?
+                planRepository.existsByTitle(title) :
+                planRepository.existsByTitleAndIdNot(title, id);
+
+        if (exists) {
+            throw new PlanNameDuplicateException(messageUtils.getMessage("plan.name.duplicate", title));
+        }
     }
 
-    private void validateAndLoad(BasePlan request, Plan plan) {
-        plan.setTitle(request.getTitle());
-        plan.setUpdatedAt(LocalDateTime.now());
-        if (request.getImageUrl() != null) plan.setImageUrl(request.getImageUrl());
-        if (request.getDescription() != null) plan.setDescription(request.getDescription());
-        Priority priority = priorityRepository.findByIdAndType(request.getPriorityId(), Type.PLAN);
-        if (priority == null) throw new PriorityNotFoundException(messageUtils.getMessage("priority.not.found"));
-        plan.setPriority(priority);
-        if (request.getTagIds() != null) {
-            Set<Tag> tags = request.getTagIds().stream().map(tagId -> tagRepository.findById(tagId)
-                    .orElseThrow(() -> new TagNotFoundException(messageUtils.getMessage("tag.not.found")))).collect(Collectors.toSet());
-            plan.setTags(tags);
-        }
-        User user = userRepository.findById(request.getOwnerId())
-                .orElseThrow(() -> new UserNotFoundException(messageUtils.getMessage("user.not.found")));
-        plan.setOwner(user);
+    private String handleCoverUpload(MultipartFile coverFile, String oldCoverId, User user) {
+        if (oldCoverId != null) uploadService.delete(oldCoverId);
+        return coverFile != null ? uploadService.upload(coverFile, user, "plans") : null;
     }
 
-    private PlanResponse mapToDto(Plan plan) {
-        PlanResponse dto = new PlanResponse();
-        dto.setId(plan.getId());
-        dto.setName(plan.getTitle());
-        if (plan.getDescription() != null) dto.setDescription(plan.getDescription());
-        if (plan.getImageUrl() != null) dto.setImageUrl(plan.getImageUrl());
-        dto.setCreatedAt(plan.getCreatedAt());
-        dto.setUpdateAt(plan.getUpdatedAt());
+    private Priority handlePriority(PlanRequest request) {
+        return request.getPriorityId() != null ? priorityService.findById(request.getPriorityId()) : null;
+    }
 
-        if (plan.getPriority() != null) dto.setPriorityId(plan.getPriority().getId());
-        if (plan.getTags() != null) {
-            dto.setTagIds(plan.getTags().stream().map(Tag::getId).collect(Collectors.toSet()));
-        }
-        if (plan.getOwner() != null) dto.setOwnerId(plan.getOwner().getId());
-        return dto;
+    private Set<Tag> handleTags(PlanRequest request) {
+        return request.getTagIds() != null ? tagService.getAllByIds(request.getTagIds()) : null;
     }
 }

@@ -2,7 +2,7 @@ package org.example.backend.config;
 
 import lombok.AllArgsConstructor;
 import org.example.backend.config.filter.JwtFilter;
-import org.example.backend.service.CustomUserDetailsService;
+import org.example.backend.service.user.CustomUserDetailsService;
 import org.example.backend.service.JwtService;
 import org.example.backend.service.RefreshTokenService;
 import org.example.backend.utils.MessageUtils;

@@ -21,4 +21,8 @@ public class Utils {
 
         return sb.toString();
     }
+
+    public static String generateFolderAvatar(String email) {
+        return email.split("@")[0].replaceAll("\\.", "_");
+    }
 }

@@ -13,7 +13,7 @@ public class PriorityService {
     private final PriorityRepository priorityRepository;
     private final MessageUtils messageUtils;
 
-    public Priority findById(int id) {
+    public Priority findById(Integer id) {
         return priorityRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(messageUtils.getMessage("priority.not.found")));
     } 

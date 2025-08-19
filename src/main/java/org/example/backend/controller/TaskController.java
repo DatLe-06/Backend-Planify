@@ -2,7 +2,7 @@ package org.example.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.task.AddTaskRequest;
+import org.example.backend.dto.task.CreateTaskRequest;
 import org.example.backend.dto.task.TaskResponse;
 import org.example.backend.dto.task.UpdateTaskRequest;
 import org.example.backend.service.task.TaskService;
@@ -19,7 +19,7 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskResponse> create(@Valid @RequestBody AddTaskRequest request) {
+    public ResponseEntity<TaskResponse> create(@Valid @RequestBody CreateTaskRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(taskService.create(request));
     }
 

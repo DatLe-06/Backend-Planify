@@ -19,7 +19,7 @@ public class Plan {
     @Column(length = 100, unique = true)
     private String title;
     private String description;
-    private String imageUrl;
+    private String coverPublicId;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
