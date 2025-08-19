@@ -3,6 +3,7 @@ package org.example.backend.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.example.backend.constant.Type;
 
 @Getter
 @Setter

@@ -1,4 +1,4 @@
-package org.example.backend.entity;
+package org.example.backend.constant;
 
 public enum PlanRole {
     All, EDITOR, VIEWER

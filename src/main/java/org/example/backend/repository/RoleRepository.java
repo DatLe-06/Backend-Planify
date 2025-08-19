@@ -1,7 +1,7 @@
 package org.example.backend.repository;
 
 import org.example.backend.entity.Role;
-import org.example.backend.entity.RoleName;
+import org.example.backend.constant.RoleName;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

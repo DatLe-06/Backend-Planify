@@ -3,7 +3,7 @@ package org.example.backend.dto.plan.member;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.backend.entity.PlanRole;
+import org.example.backend.constant.PlanRole;
 
 @Getter
 @Setter
