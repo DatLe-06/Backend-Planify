@@ -2,6 +2,7 @@ package org.example.backend.service.plan;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.example.backend.config.filter.CloudinaryTarget;
 import org.example.backend.dto.plan.AddPlanRequest;
 import org.example.backend.dto.plan.PlanRequest;
 import org.example.backend.dto.plan.PlanResponse;
@@ -20,7 +21,6 @@ import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -120,7 +120,7 @@ public class PlanServiceImpl implements PlanService {
 
     private String handleCoverUpload(MultipartFile coverFile, String oldCoverId, User user) {
         if (oldCoverId != null) uploadService.delete(oldCoverId);
-        return coverFile != null ? uploadService.upload(coverFile, user, "plans") : null;
+        return coverFile != null ? uploadService.upload(coverFile, user, CloudinaryTarget.COVER_PLAN) : null;
     }
 
     private Priority handlePriority(PlanRequest request) {

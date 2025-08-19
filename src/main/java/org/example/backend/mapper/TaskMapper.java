@@ -6,6 +6,7 @@ import org.example.backend.dto.task.UpdateTaskRequest;
 import org.example.backend.entity.*;
 import org.springframework.stereotype.Component;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -47,6 +48,8 @@ public class TaskMapper {
 
         task.setStartDate(request.getStartDate());
         task.setEndDate(request.getEndDate());
+        task.setCreatedAt(LocalDateTime.now());
+        task.setUpdatedAt(LocalDateTime.now());
         task.setStatus(status);
         task.setPriority(priority);
         if (!members.isEmpty()) task.setMembers(members);
@@ -63,6 +66,7 @@ public class TaskMapper {
         if (request.getDescription() != null) task.setDescription(request.getDescription());
         if (request.getStartDate() != null) task.setStartDate(request.getStartDate());
         if (request.getEndDate() != null) task.setEndDate(request.getEndDate());
+        task.setUpdatedAt(LocalDateTime.now());
         if (status != null) task.setStatus(status);
         if (priority != null) task.setPriority(priority);
         if (!members.isEmpty()) task.setMembers(members);

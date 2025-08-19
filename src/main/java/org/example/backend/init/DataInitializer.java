@@ -4,9 +4,11 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import org.example.backend.entity.*;
 import org.example.backend.repository.*;
 import org.example.backend.utils.MessageUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,7 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
-@AllArgsConstructor
+@RequiredArgsConstructor
 public class DataInitializer implements CommandLineRunner {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -28,7 +30,6 @@ public class DataInitializer implements CommandLineRunner {
     private final StatusRepository statusRepository;
     private final TagRepository tagRepository;
     private final PriorityRepository priorityRepository;
-    private final MessageUtils messageUtils;
 
     @Transactional
     @Override
@@ -40,15 +41,15 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void initUser() {
-        Role userRole = roleRepository.findByName("ROLE_USER").orElseGet(() -> {
+        Role userRole = roleRepository.findByName(RoleName.ROLE_USER).orElseGet(() -> {
             Role newRole = new Role();
-            newRole.setName("ROLE_USER");
+            newRole.setName(RoleName.ROLE_USER);
             return roleRepository.save(newRole);
         });
 
-        Role adminRole = roleRepository.findByName("ROLE_ADMIN").orElseGet(() -> {
+        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN).orElseGet(() -> {
             Role newRole = new Role();
-            newRole.setName("ROLE_ADMIN");
+            newRole.setName(RoleName.ROLE_ADMIN);
             return roleRepository.save(newRole);
         });
 
