@@ -47,8 +47,7 @@ public class AuthController {
         } catch (DisabledException e) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body(messageUtils.getMessage("user.disabled"));
         } catch (Exception e) {
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageUtils.getMessage("internal.server.error"));
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.toString());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(messageUtils.getMessage("internal.server.error"));
         }
     }
 
@@ -59,8 +58,7 @@ public class AuthController {
     }
 
     @PostMapping(value = "/register", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> register(@Valid @ModelAttribute RegisterRequest request) {
-        userDetailsService.add(request);
-        return ResponseEntity.ok(messageUtils.getMessage("register.success"));
+    public ResponseEntity<?> register(@Valid @ModelAttribute RegisterRequest request) {;
+        return ResponseEntity.ok(userDetailsService.add(request));
     }}
 
