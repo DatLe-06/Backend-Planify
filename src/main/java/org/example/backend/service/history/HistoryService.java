@@ -1,7 +1,7 @@
 package org.example.backend.service.history;
 
 import org.example.backend.entity.History;
-import org.example.backend.entity.Type;
+import org.example.backend.constant.Type;
 import org.example.backend.entity.User;
 
 public interface HistoryService {

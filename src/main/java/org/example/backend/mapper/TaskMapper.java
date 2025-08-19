@@ -3,17 +3,19 @@ package org.example.backend.mapper;
 import org.example.backend.dto.task.CreateTaskRequest;
 import org.example.backend.dto.task.TaskResponse;
 import org.example.backend.dto.task.UpdateTaskRequest;
+import org.example.backend.dto.task.sub.SubTaskResponse;
 import org.example.backend.entity.*;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 @Component
 public class TaskMapper {
-    public TaskResponse toResponse(Task task, List<SubTask> subTasks) {
+    public TaskResponse toResponse(Task task, List<SubTaskResponse> subTasks) {
         TaskResponse response = new TaskResponse();
         response.setId(task.getId());
         response.setTitle(task.getTitle());
@@ -28,8 +30,9 @@ public class TaskMapper {
         response.setPlanName(task.getPlan().getTitle());
         response.setOwnerName(task.getCreatedBy().getUsername());
         if (!subTasks.isEmpty()) {
-            long completed = subTasks.stream().filter(SubTask::isCompleted).count();
+            long completed = subTasks.stream().filter(SubTaskResponse::isCompleted).count();
             response.setProgress(completed / (double) subTasks.size());
+            response.setSubTaskResponses(new HashSet<>(subTasks));
         }
         if (!task.getMembers().isEmpty()) {
             response.setMemberNames(task.getMembers().stream().map(User::getUsername).collect(Collectors.toSet()));
@@ -40,7 +43,7 @@ public class TaskMapper {
         return response;
     }
 
-    public void toEntityForCreate(
+    public void toEntityForCreate (
             CreateTaskRequest request, Status status, Priority priority, Set<User> members,
             Plan plan, Set<Tag> tags, User createdBy, Task task) {
         task.setTitle(request.getTitle());

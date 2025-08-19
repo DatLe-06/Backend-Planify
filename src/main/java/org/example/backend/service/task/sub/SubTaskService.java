@@ -1,17 +1,15 @@
 package org.example.backend.service.task.sub;
 
-import org.example.backend.dto.task.sub.AddSubTaskRequest;
+import org.example.backend.dto.task.sub.CreateSubTaskRequest;
 import org.example.backend.dto.task.sub.SubTaskResponse;
-import org.example.backend.entity.SubTask;
+import org.example.backend.dto.task.sub.UpdateSubTaskRequest;
 
 import java.util.List;
 
 public interface SubTaskService {
-    SubTaskResponse createSubTask(AddSubTaskRequest request);
-    List<SubTaskResponse> getAllSubTasks();
-    SubTaskResponse getSubTaskById(Long id);
-    SubTaskResponse updateSubTask(Long id, AddSubTaskRequest request);
+    SubTaskResponse createSubTask(CreateSubTaskRequest request);
+    SubTaskResponse updateSubTask(Long id, UpdateSubTaskRequest request);
     void deleteSubTask(Long id);
-    List<SubTask> getAllSubTasksByTaskId(Long taskId);
+    List<SubTaskResponse> getAllSubTasksByTaskId(Long taskId);
 }
 

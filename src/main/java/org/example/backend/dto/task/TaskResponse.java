@@ -2,6 +2,7 @@ package org.example.backend.dto.task;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.example.backend.dto.task.sub.SubTaskResponse;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -22,5 +23,6 @@ public class TaskResponse {
     private Set<String> memberNames;
     private String planName;
     private Set<String> tagNames;
+    private Set<SubTaskResponse> subTaskResponses;
     private String ownerName;
 }

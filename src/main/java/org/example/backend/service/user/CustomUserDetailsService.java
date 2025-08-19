@@ -1,11 +1,11 @@
 package org.example.backend.service.user;
 
 import lombok.AllArgsConstructor;
-import org.example.backend.config.filter.CloudinaryTarget;
+import org.example.backend.constant.CloudinaryTarget;
 import org.example.backend.dto.auth.RegisterRequest;
 import org.example.backend.dto.user.ProfileResponse;
 import org.example.backend.entity.Role;
-import org.example.backend.entity.RoleName;
+import org.example.backend.constant.RoleName;
 import org.example.backend.entity.User;
 import org.example.backend.exception.custom.EmailDuplicateException;
 import org.example.backend.exception.custom.RoleNotFoundException;

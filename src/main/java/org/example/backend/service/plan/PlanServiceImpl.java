@@ -2,7 +2,8 @@ package org.example.backend.service.plan;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.example.backend.config.filter.CloudinaryTarget;
+import org.example.backend.constant.CloudinaryTarget;
+import org.example.backend.constant.Type;
 import org.example.backend.dto.plan.AddPlanRequest;
 import org.example.backend.dto.plan.PlanRequest;
 import org.example.backend.dto.plan.PlanResponse;

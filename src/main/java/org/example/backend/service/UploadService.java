@@ -4,7 +4,7 @@ import com.cloudinary.Cloudinary;
 import com.cloudinary.Transformation;
 import com.cloudinary.utils.ObjectUtils;
 import lombok.AllArgsConstructor;
-import org.example.backend.config.filter.CloudinaryTarget;
+import org.example.backend.constant.CloudinaryTarget;
 import org.example.backend.entity.User;
 import org.example.backend.exception.custom.UploadException;
 import org.example.backend.utils.MessageUtils;

@@ -2,7 +2,7 @@ package org.example.backend.service.history;
 
 import lombok.AllArgsConstructor;
 import org.example.backend.entity.History;
-import org.example.backend.entity.Type;
+import org.example.backend.constant.Type;
 import org.example.backend.entity.User;
 import org.example.backend.repository.HistoryRepository;
 import org.springframework.stereotype.Service;
