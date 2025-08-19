@@ -1,160 +1,107 @@
 package org.example.backend.service.task;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.task.AddTaskRequest;
+import org.example.backend.dto.task.CreateTaskRequest;
 import org.example.backend.dto.task.TaskResponse;
 import org.example.backend.dto.task.UpdateTaskRequest;
 import org.example.backend.entity.*;
-import org.example.backend.repository.*;
+import org.example.backend.exception.custom.TaskNotFoundException;
+import org.example.backend.mapper.TaskMapper;
+import org.example.backend.repository.TaskRepository;
+import org.example.backend.service.user.CustomUserDetailsService;
+import org.example.backend.service.history.HistoryService;
+import org.example.backend.service.plan.PlanService;
+import org.example.backend.service.priority.PriorityService;
+import org.example.backend.service.status.StatusService;
+import org.example.backend.service.tag.TagService;
+import org.example.backend.service.task.sub.SubTaskService;
+import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-public class TaskServiceImpl implements TaskService{
+public class TaskServiceImpl implements TaskService {
+
     private final TaskRepository taskRepository;
-    private final StatusRepository statusRepository;
-    private final PriorityRepository priorityRepository;
-    private final UserRepository userRepository;
-    private final PlanRepository planRepository;
-    private final TagRepository tagRepository;
-    private final SubTaskRepository subTaskRepository;
+    private final PlanService planService;
+    private final CustomUserDetailsService userService;
+    private final StatusService statusService;
+    private final PriorityService priorityService;
+    private final TagService tagService;
+    private final SubTaskService subTaskService;
+    private final HistoryService historyService;
+    private final MessageUtils messageUtils;
+    private final TaskMapper taskMapper;
 
+    @Transactional
     @Override
-    public TaskResponse createTask(AddTaskRequest request) {
+    public TaskResponse create(CreateTaskRequest request) {
+        User currentUser = userService.getCurrentUser();
         Task task = new Task();
-        task.setContent(request.getContent());
-        task.setStartDate(request.getStartDate());
-        task.setEndDate(request.getEndDate());
-        task.setCreatedAt(LocalDateTime.now());
 
-        // Set Status
-        if (request.getStatusId() != null) {
-            Status status = statusRepository.findById(request.getStatusId())
-                    .orElseThrow(() -> new RuntimeException("Status not found"));
-            task.setStatus(status);
-        }
+        Plan plan = planService.findById(request.getPlanId());
+        Status status = statusService.findById(request.getStatusId());
+        Priority priority = priorityService.findById(request.getPriorityId());
+        Set<User> members = (request.getMemberIds() != null) ? userService.getAllByIds(request.getMemberIds()) : task.getMembers();
+        Set<Tag> tags = (request.getTagIds() != null) ? tagService.getAllByIds(request.getTagIds()) : task.getTags();
 
-        // Set Priority
-        if (request.getPriorityId() != null) {
-            Priority priority = priorityRepository.findById(request.getPriorityId())
-                    .orElseThrow(() -> new RuntimeException("Priority not found"));
-            task.setPriority(priority);
-        }
+        taskMapper.toEntityForCreate(request, status, priority, members, plan, tags, currentUser, task);
+        taskRepository.save(task);
 
-        // Set Members
-        if (request.getMemberIds() != null) {
-            Set<User> members = new HashSet<>(userRepository.findAllById(request.getMemberIds()));
-            task.setMembers(members);
-        }
-
-        // Set Project
-        if (request.getProjectId() != null) {
-            Plan plan = planRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
-            task.setPlan(plan);
-        }
-
-        // Set Tags
-        if (request.getTagIds() != null) {
-            Set<Tag> tags = new HashSet<>(tagRepository.findAllById(request.getTagIds()));
-            task.setTags(tags);
-        }
-
-        return mapToResponse(taskRepository.save(task));
+        historyService.createHistory(Type.TASK, task.getId(), task.getTitle(), Action.Task.CREATE, currentUser);
+        return taskMapper.toResponse(task, subTaskService.getAllSubTasksByTaskId(task.getId()));
     }
 
+    @Transactional
     @Override
     public TaskResponse updateTask(Long id, UpdateTaskRequest request) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
+        Task task = findById(id);
+        User currentUser = userService.getCurrentUser();
 
-        task.setContent(request.getContent());
-        task.setStartDate(request.getStartDate());
-        task.setEndDate(request.getEndDate());
-        task.setUpdatedAt(LocalDateTime.now());
+        Status status = (request.getStatusId() != null) ? statusService.findById(request.getStatusId()) : task.getStatus();
+        Priority priority = (request.getPriorityId() != null) ? priorityService.findById(request.getPriorityId()) : task.getPriority();
+        Set<User> members = (request.getMemberIds() != null) ? userService.getAllByIds(request.getMemberIds()) : task.getMembers();
+        Set<Tag> tags = (request.getTagIds() != null) ? tagService.getAllByIds(request.getTagIds()) : task.getTags();
 
-        // Set Status
-        if (request.getStatusId() != null) {
-            Status status = statusRepository.findById(request.getStatusId())
-                    .orElseThrow(() -> new RuntimeException("Status not found"));
-            task.setStatus(status);
-        }
+        taskMapper.toEntityForUpdate(request, status, priority, members, tags, task);
+        taskRepository.save(task);
 
-        // Set Priority
-        if (request.getPriorityId() != null) {
-            Priority priority = priorityRepository.findById(request.getPriorityId())
-                    .orElseThrow(() -> new RuntimeException("Priority not found"));
-            task.setPriority(priority);
-        }
-
-        // Set Members
-        if (request.getMemberIds() != null) {
-            Set<User> members = new HashSet<>(userRepository.findAllById(request.getMemberIds()));
-            task.setMembers(members);
-        }
-
-        // Set Project
-        if (request.getProjectId() != null) {
-            Plan plan = planRepository.findById(request.getProjectId())
-                    .orElseThrow(() -> new RuntimeException("Project not found"));
-            task.setPlan(plan);
-        }
-
-        // Set Tags
-        if (request.getTagIds() != null) {
-            Set<Tag> tags = new HashSet<>(tagRepository.findAllById(request.getTagIds()));
-            task.setTags(tags);
-        }
-
-        return mapToResponse(taskRepository.save(task));
+        historyService.createHistory(Type.TASK, task.getId(), task.getTitle(), Action.Task.UPDATE, currentUser);
+        return taskMapper.toResponse(task, subTaskService.getAllSubTasksByTaskId(task.getId()));
     }
 
+    @Transactional
     @Override
-    public void deleteTask(Long id) {
-        taskRepository.deleteById(id);
+    public String deleteTask(Long id) {
+        Task task = findById(id);
+        User currentUser = userService.getCurrentUser();
+
+        History history = historyService.createHistory(Type.TASK, task.getId(), task.getTitle(), Action.Task.DELETE, currentUser);
+        taskRepository.delete(task);
+
+        return messageUtils.getMessage("delete.task.success", history.getName());
     }
 
     @Override
     public TaskResponse getTask(Long id) {
-        Task task = taskRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Task not found"));
-        return mapToResponse(task);
+        Task task = findById(id);
+        return taskMapper.toResponse(task, subTaskService.getAllSubTasksByTaskId(task.getId()));
     }
 
     @Override
     public List<TaskResponse> getAllTasks() {
         return taskRepository.findAll().stream()
-                .map(this::mapToResponse)
+                .map(task -> taskMapper.toResponse(task, subTaskService.getAllSubTasksByTaskId(task.getId())))
                 .toList();
     }
 
-    private TaskResponse mapToResponse(Task task) {
-        TaskResponse response = new TaskResponse();
-        response.setId(task.getId());
-        response.setContent(task.getContent());
-
-        List<SubTask> subTasks = subTaskRepository.findAllByTask_Id(task.getId());
-        if (subTasks != null && !subTasks.isEmpty() ) {
-            long completed = subTasks.stream().filter(SubTask::isCompleted).count();
-            response.setProgress(completed / (double) subTasks.size());
-        }
-
-        response.setStartDate(task.getStartDate());
-        response.setEndDate(task.getEndDate());
-        response.setCreatedAt(task.getCreatedAt());
-        response.setUpdateAt(task.getUpdatedAt());
-        response.setStatusName(task.getStatus() != null ? task.getStatus().getName() : null);
-        response.setPriorityName(task.getPriority() != null ? task.getPriority().getName() : null);
-        response.setMemberNames(task.getMembers().stream().map(User::getUsername).collect(Collectors.toSet()));
-        response.setProjectName(task.getPlan() != null ? task.getPlan().getName() : null);
-        response.setTagNames(task.getTags().stream().map(Tag::getName).collect(Collectors.toSet()));
-        return response;
+    private Task findById(Long id) {
+        return taskRepository.findById(id)
+                .orElseThrow(() -> new TaskNotFoundException(messageUtils.getMessage("task.not.found")));
     }
 }
 

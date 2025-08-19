@@ -2,8 +2,8 @@ package org.example.backend.exception.custom;
 
 import jakarta.persistence.EntityNotFoundException;
 
-public class RoleNotFoundException extends EntityNotFoundException {
-    public RoleNotFoundException(String message) {
+public class TaskNotFoundException extends EntityNotFoundException {
+    public TaskNotFoundException(String message) {
         super(message);
     }
 }

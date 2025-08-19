@@ -1,6 +1,8 @@
 package org.example.backend.exception.custom;
 
-public class EmailDuplicateException extends RuntimeException {
+import jakarta.persistence.EntityExistsException;
+
+public class EmailDuplicateException extends EntityExistsException {
     public EmailDuplicateException(String message) {
         super(message);
     }

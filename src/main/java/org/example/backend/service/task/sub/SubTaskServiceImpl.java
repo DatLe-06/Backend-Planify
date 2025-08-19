@@ -72,6 +72,11 @@ public class SubTaskServiceImpl implements SubTaskService{
         subTaskRepository.deleteById(id);
     }
 
+    @Override
+    public List<SubTask> getAllSubTasksByTaskId(Long taskId) {
+        return subTaskRepository.findAllByTask_Id(taskId);
+    }
+
     private SubTaskResponse mapToResponse(SubTask subTask) {
         return new SubTaskResponse(
                 subTask.getId(),

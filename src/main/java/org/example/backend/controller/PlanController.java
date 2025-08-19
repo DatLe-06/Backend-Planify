@@ -19,12 +19,12 @@ public class PlanController {
     private final PlanServiceImpl planService;
 
     @PostMapping
-    public ResponseEntity<?> create(@Valid @RequestBody AddPlanRequest request) {
+    public ResponseEntity<?> create(@Valid @ModelAttribute AddPlanRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(planService.create(request));
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PlanResponse> update(@PathVariable Long id, @RequestBody UpdatePlanRequest request) {
+    public ResponseEntity<PlanResponse> update(@PathVariable Long id, @Valid @ModelAttribute UpdatePlanRequest request) {
         return ResponseEntity.ok(planService.update(id, request));
     }
 

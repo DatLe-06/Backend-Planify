@@ -10,7 +10,8 @@ import java.util.Set;
 @Setter
 public class TaskResponse {
     private Long id;
-    private String content;
+    private String title;
+    private String description;
     private Double progress;
     private LocalDateTime startDate;
     private LocalDateTime endDate;
@@ -19,6 +20,7 @@ public class TaskResponse {
     private String statusName;
     private String priorityName;
     private Set<String> memberNames;
-    private String projectName;
+    private String planName;
     private Set<String> tagNames;
+    private String ownerName;
 }

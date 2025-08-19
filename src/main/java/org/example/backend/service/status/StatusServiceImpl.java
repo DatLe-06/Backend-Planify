@@ -20,6 +20,12 @@ public class StatusServiceImpl implements StatusService {
     private final UserRepository userRepository;
 
     @Override
+    public Status findById(Integer id) {
+        return statusRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Status not found"));
+    }
+
+    @Override
     public StatusResponse createStatus(AddStatusRequest request) {
         if (statusRepository.existsByNameAndCreatedBy_Id(request.getName(), request.getUserId())) {
             throw new IllegalArgumentException("Status name already exists for this user");
@@ -48,7 +54,8 @@ public class StatusServiceImpl implements StatusService {
     public StatusResponse getStatusById(Integer id) {
         Status status = statusRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Status not found"));
-        return mapToResponse(status);    }
+        return mapToResponse(status);
+    }
 
     @Override
     public StatusResponse updateStatus(Integer id, AddStatusRequest request) {

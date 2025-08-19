@@ -9,7 +9,7 @@ public class Action {
         UPDATE_STATUS,
         UPDATE_PRIORITY,
         ADD_SUB_TASK,
-        REMOVE_SUB_TASK
+        DELETE, CREATE, UPDATE, REMOVE_SUB_TASK
     }
 
     public enum Plan {

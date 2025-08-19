@@ -1,5 +1,6 @@
 package org.example.backend.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.example.backend.entity.RefreshToken;
 import org.example.backend.entity.User;
@@ -32,6 +33,7 @@ public class RefreshTokenService {
         return refreshTokenRepository.existsByUserEmailAndExpiryDateAfter(email, LocalDateTime.now());
     }
 
+    @Transactional
     public void add(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
         if (refreshTokenRepository.existsByUserEmail(user.getEmail())) {
