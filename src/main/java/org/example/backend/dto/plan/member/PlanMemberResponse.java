@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.backend.dto.user.ProfileResponse;
+import org.example.backend.entity.User;
 
 @Getter
 @Setter
@@ -12,6 +14,6 @@ import lombok.Setter;
 public class PlanMemberResponse {
     private Long id;
     private Long projectId;
-    private Long userId;
+    private ProfileResponse member;
     private String role;
 }

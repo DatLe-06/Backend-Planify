@@ -1,13 +1,14 @@
 package org.example.backend.dto.plan.member;
 
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Pattern;
 import lombok.Getter;
 import lombok.Setter;
-import org.example.backend.constant.PlanRole;
 
 @Getter
 @Setter
-public class AddPlanMemberRequest {
+
+public abstract class PlanMemberRequest {
     @NotNull(message = "Plan ID cannot be null")
     private Long planId;
 
@@ -15,5 +16,6 @@ public class AddPlanMemberRequest {
     private Long userId;
 
     @NotNull(message = "Role cannot be null")
-    private PlanRole role;
+    @Pattern(regexp = "ALL|EDITOR|VIEWER")
+    private String role;
 }

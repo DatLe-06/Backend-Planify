@@ -2,7 +2,7 @@ package org.example.backend.converter;
 
 import jakarta.persistence.AttributeConverter;
 import jakarta.persistence.Converter;
-import org.example.backend.entity.Action;
+import org.example.backend.constant.Action;
 
 import java.util.HashMap;
 import java.util.Map;
