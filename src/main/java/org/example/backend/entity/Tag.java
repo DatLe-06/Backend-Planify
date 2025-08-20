@@ -19,11 +19,12 @@ public class Tag {
 
     @Column(length = 20)
     private String name;
+    @Column(length = 200)
     private String description;
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private User user;
+    private User createdBy;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)

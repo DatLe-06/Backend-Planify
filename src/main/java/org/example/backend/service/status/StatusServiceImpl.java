@@ -2,7 +2,7 @@ package org.example.backend.service.status;
 
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.status.AddStatusRequest;
+import org.example.backend.dto.status.CreateStatusRequest;
 import org.example.backend.dto.status.StatusResponse;
 import org.example.backend.entity.Status;
 import org.example.backend.entity.User;
@@ -26,7 +26,7 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public StatusResponse createStatus(AddStatusRequest request) {
+    public StatusResponse createStatus(CreateStatusRequest request) {
         if (statusRepository.existsByNameAndCreatedBy_Id(request.getName(), request.getUserId())) {
             throw new IllegalArgumentException("Status name already exists for this user");
         }
@@ -58,7 +58,7 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public StatusResponse updateStatus(Integer id, AddStatusRequest request) {
+    public StatusResponse updateStatus(Integer id, CreateStatusRequest request) {
         Status status = statusRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Status not found"));
 

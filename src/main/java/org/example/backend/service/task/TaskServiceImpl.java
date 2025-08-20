@@ -16,7 +16,7 @@ import org.example.backend.service.history.HistoryService;
 import org.example.backend.service.plan.PlanService;
 import org.example.backend.service.priority.PriorityService;
 import org.example.backend.service.status.StatusService;
-import org.example.backend.service.tag.TagService;
+import org.example.backend.service.tag.TagServiceImpl;
 import org.example.backend.service.task.sub.SubTaskService;
 import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,7 @@ public class TaskServiceImpl implements TaskService {
     private final CustomUserDetailsService userService;
     private final StatusService statusService;
     private final PriorityService priorityService;
-    private final TagService tagService;
+    private final TagServiceImpl tagServiceImpl;
     private final SubTaskService subTaskService;
     private final HistoryService historyService;
     private final MessageUtils messageUtils;
@@ -49,7 +49,7 @@ public class TaskServiceImpl implements TaskService {
         Status status = statusService.findById(request.getStatusId());
         Priority priority = priorityService.findById(request.getPriorityId());
         Set<User> members = (request.getMemberIds() != null) ? userService.getAllByIds(request.getMemberIds()) : task.getMembers();
-        Set<Tag> tags = (request.getTagIds() != null) ? tagService.getAllByIds(request.getTagIds()) : task.getTags();
+        Set<Tag> tags = (request.getTagIds() != null) ? tagServiceImpl.getAllByIds(request.getTagIds()) : task.getTags();
 
         taskMapper.toEntityForCreate(request, status, priority, members, plan, tags, currentUser, task);
         taskRepository.save(task);
@@ -67,7 +67,7 @@ public class TaskServiceImpl implements TaskService {
         Status status = (request.getStatusId() != null) ? statusService.findById(request.getStatusId()) : task.getStatus();
         Priority priority = (request.getPriorityId() != null) ? priorityService.findById(request.getPriorityId()) : task.getPriority();
         Set<User> members = (request.getMemberIds() != null) ? userService.getAllByIds(request.getMemberIds()) : task.getMembers();
-        Set<Tag> tags = (request.getTagIds() != null) ? tagService.getAllByIds(request.getTagIds()) : task.getTags();
+        Set<Tag> tags = (request.getTagIds() != null) ? tagServiceImpl.getAllByIds(request.getTagIds()) : task.getTags();
 
         taskMapper.toEntityForUpdate(request, status, priority, members, tags, task);
         taskRepository.save(task);
