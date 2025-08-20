@@ -17,7 +17,7 @@ import org.example.backend.repository.PlanRepository;
 import org.example.backend.service.UploadService;
 import org.example.backend.service.history.HistoryService;
 import org.example.backend.service.priority.PriorityService;
-import org.example.backend.service.tag.TagService;
+import org.example.backend.service.tag.TagServiceImpl;
 import org.example.backend.service.user.UserService;
 import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Service;
@@ -37,7 +37,7 @@ public class PlanServiceImpl implements PlanService {
     private final UploadService uploadService;
     private final UserService userService;
     private final PriorityService priorityService;
-    private final TagService tagService;
+    private final TagServiceImpl tagServiceImpl;
 
     @Override
     public Plan findById(Long id) {
@@ -130,6 +130,6 @@ public class PlanServiceImpl implements PlanService {
     }
 
     private Set<Tag> handleTags(PlanRequest request) {
-        return request.getTagIds() != null ? tagService.getAllByIds(request.getTagIds()) : null;
+        return request.getTagIds() != null ? tagServiceImpl.getAllByIds(request.getTagIds()) : null;
     }
 }

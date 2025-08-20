@@ -2,7 +2,7 @@ package org.example.backend.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.backend.dto.status.AddStatusRequest;
+import org.example.backend.dto.status.CreateStatusRequest;
 import org.example.backend.dto.status.StatusResponse;
 import org.example.backend.service.status.StatusService;
 import org.springframework.http.HttpStatus;
@@ -18,7 +18,7 @@ public class StatusController {
     private final StatusService statusService;
 
     @PostMapping
-    public ResponseEntity<StatusResponse> createStatus(@Valid @RequestBody AddStatusRequest request) {
+    public ResponseEntity<StatusResponse> createStatus(@Valid @RequestBody CreateStatusRequest request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(statusService.createStatus(request));
     }
 
@@ -33,7 +33,7 @@ public class StatusController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<StatusResponse> updateStatus(@PathVariable Integer id, @Valid @RequestBody AddStatusRequest request) {
+    public ResponseEntity<StatusResponse> updateStatus(@PathVariable Integer id, @Valid @RequestBody CreateStatusRequest request) {
         return ResponseEntity.ok(statusService.updateStatus(id, request));
     }
 

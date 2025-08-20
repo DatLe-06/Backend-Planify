@@ -8,7 +8,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class AddStatusRequest {
+public class CreateStatusRequest {
     @NotBlank(message = "Name cannot be blank")
     @Size(max = 20, message = "Name cannot exceed 20 characters")
     private String name;
