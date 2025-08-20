@@ -41,7 +41,23 @@ public class Plan {
     )
     private Set<Tag> tags;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id")
     private User owner;
+
+    @Override
+    public String toString() {
+        return "Plan{" +
+                "id=" + id +
+                ", title='" + title + '\'' +
+                ", description='" + description + '\'' +
+                ", coverPublicId='" + coverPublicId + '\'' +
+                ", color=" + color +
+                ", createdAt=" + createdAt +
+                ", updatedAt=" + updatedAt +
+                ", priority=" + priority +
+                ", tags=" + tags +
+                ", owner=" + owner +
+                '}';
+    }
 }

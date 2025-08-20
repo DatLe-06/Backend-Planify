@@ -11,6 +11,5 @@ public interface UserService {
     User getCurrentUser();
     ProfileResponse getProfile(Long id);
     Set<User> getAllByIds(Set<Long> ids);
-    ProfileResponse add(RegisterRequest request);
     ProfileResponse uploadAvatar(MultipartFile file);
 }

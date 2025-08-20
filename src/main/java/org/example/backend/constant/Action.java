@@ -1,4 +1,4 @@
-package org.example.backend.entity;
+package org.example.backend.constant;
 
 public class Action {
 
@@ -28,8 +28,8 @@ public class Action {
     }
 
     public enum Member {
-        ADD_MEMBER,
-        REMOVE_MEMBER,
-        UPDATE_MEMBER_ROLE
+        ADD,
+        REMOVE,
+        UPDATE_ROLE
     }
 }

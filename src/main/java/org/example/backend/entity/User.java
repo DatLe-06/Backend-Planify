@@ -11,6 +11,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 @Table(name = "users")
@@ -44,6 +45,18 @@ public class User implements UserDetails {
     }
 
     @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(id, user.id);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id);
+    }
+
+    @Override
     public String toString() {
         return "User{" +
                 "id=" + id +
@@ -51,7 +64,7 @@ public class User implements UserDetails {
                 ", password='" + password + '\'' +
                 ", birthDate=" + birthDate +
                 ", email='" + email + '\'' +
-                ", avatarUrl='" + avatarPublicId + '\'' +
+                ", avatarPublicId='" + avatarPublicId + '\'' +
                 ", enabled=" + enabled +
                 ", createdAt=" + createdAt +
                 ", lastLoginAt=" + lastLoginAt +

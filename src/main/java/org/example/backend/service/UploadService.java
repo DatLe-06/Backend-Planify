@@ -36,11 +36,12 @@ public class UploadService {
 
             @SuppressWarnings("unchecked")
             Map<String, Object> uploadResult = (Map<String, Object>) cloudinary.uploader().upload(
-                    file.getInputStream(), params
+                    file.getBytes(), params
             );
 
             return uploadResult.get("public_id").toString();
         } catch (IOException e) {
+            System.err.println(e);
             throw new UploadException(messageUtils.getMessage("upload.fail"));
         }
     }
