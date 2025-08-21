@@ -10,7 +10,7 @@ import org.example.backend.constant.Type;
 @Entity
 @Table(
         name = "priorities",
-        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "type"})
+        uniqueConstraints = @UniqueConstraint(columnNames = {"name", "type","user_id"})
 )
 public class Priority {
     @Id
@@ -25,5 +25,9 @@ public class Priority {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private Type type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    private User createdBy;
 }
 
