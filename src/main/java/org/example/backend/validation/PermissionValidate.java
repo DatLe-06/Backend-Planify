@@ -3,6 +3,7 @@ package org.example.backend.validation;
 import lombok.AllArgsConstructor;
 import org.example.backend.constant.PlanRole;
 import org.example.backend.entity.Plan;
+import org.example.backend.entity.Priority;
 import org.example.backend.entity.User;
 import org.example.backend.repository.PlanMemberRepository;
 import org.example.backend.utils.MessageUtils;
@@ -16,6 +17,12 @@ import java.util.List;
 public class PermissionValidate {
     private PlanMemberRepository planMemberRepository;
     private MessageUtils messageUtils;
+
+    public void canManagePriority(Priority priority, User user) {
+        if (!priority.getCreatedBy().equals(user)) {
+            throw new RuntimeException(messageUtils.getMessage("priority.update.permission.denied"));
+        }
+    }
 
     public void canViewMembers(User user, Plan plan) {
         if (notExistsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.values()))

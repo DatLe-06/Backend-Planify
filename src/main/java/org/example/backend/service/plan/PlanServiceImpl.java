@@ -16,7 +16,7 @@ import org.example.backend.mapper.PlanMapper;
 import org.example.backend.repository.PlanRepository;
 import org.example.backend.service.UploadService;
 import org.example.backend.service.history.HistoryService;
-import org.example.backend.service.priority.PriorityService;
+import org.example.backend.service.priority.PriorityServiceImpl;
 import org.example.backend.service.tag.TagServiceImpl;
 import org.example.backend.service.user.UserService;
 import org.example.backend.utils.MessageUtils;
@@ -36,7 +36,7 @@ public class PlanServiceImpl implements PlanService {
     private final PlanMapper planMapper;
     private final UploadService uploadService;
     private final UserService userService;
-    private final PriorityService priorityService;
+    private final PriorityServiceImpl priorityService;
     private final TagServiceImpl tagServiceImpl;
 
     @Override

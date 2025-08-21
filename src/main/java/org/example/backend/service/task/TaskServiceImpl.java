@@ -14,7 +14,7 @@ import org.example.backend.repository.TaskRepository;
 import org.example.backend.service.user.CustomUserDetailsService;
 import org.example.backend.service.history.HistoryService;
 import org.example.backend.service.plan.PlanService;
-import org.example.backend.service.priority.PriorityService;
+import org.example.backend.service.priority.PriorityServiceImpl;
 import org.example.backend.service.status.StatusService;
 import org.example.backend.service.tag.TagServiceImpl;
 import org.example.backend.service.task.sub.SubTaskService;
@@ -32,7 +32,7 @@ public class TaskServiceImpl implements TaskService {
     private final PlanService planService;
     private final CustomUserDetailsService userService;
     private final StatusService statusService;
-    private final PriorityService priorityService;
+    private final PriorityServiceImpl priorityService;
     private final TagServiceImpl tagServiceImpl;
     private final SubTaskService subTaskService;
     private final HistoryService historyService;
