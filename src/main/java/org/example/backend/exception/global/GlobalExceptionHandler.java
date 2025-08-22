@@ -16,7 +16,8 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public ResponseEntity<?> handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body("Invalid value for parameter '" + e.getName() + "'. Expected enum " + e.getRequiredType());
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

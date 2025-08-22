@@ -2,14 +2,11 @@ package org.example.backend.validation;
 
 import lombok.AllArgsConstructor;
 import org.example.backend.constant.PlanRole;
-import org.example.backend.entity.Plan;
-import org.example.backend.entity.Priority;
-import org.example.backend.entity.User;
+import org.example.backend.entity.*;
 import org.example.backend.repository.PlanMemberRepository;
 import org.example.backend.utils.MessageUtils;
 import org.springframework.stereotype.Component;
 
-import java.util.Collection;
 import java.util.List;
 
 @Component
@@ -25,34 +22,53 @@ public class PermissionValidate {
     }
 
     public void canViewMembers(User user, Plan plan) {
-        if (notExistsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.values()))
-                && !plan.getOwner().equals(user)) {
+        if (!(planMemberRepository.existsByMemberAndPlan(user, plan)
+                || plan.getOwner().equals(user))) {
             throw new RuntimeException(messageUtils.getMessage("member.view.permission.denied"));
         }
     }
 
-    public void canAddOrUpdateMember(User user, Plan plan) {
-        if (notExistsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.All))
-                && !plan.getOwner().equals(user)) {
+    public void canCreateAndUpdateMember(User user, Plan plan) {
+        if (!(planMemberRepository.existsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.All))
+                || plan.getOwner().equals(user))) {
             throw new RuntimeException(messageUtils.getMessage("member.add.permission.denied"));
         }
     }
 
-    public void accessTaskOrSubTask(User user, Plan plan) {
-        if (notExistsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.values()))
-                && !plan.getOwner().equals(user)) {
+    public void canViewSubTask(User user, Plan plan) {
+        if (!(planMemberRepository.existsByMemberAndPlan(user, plan) || plan.getOwner().equals(user))) {
             throw new RuntimeException(messageUtils.getMessage("task.access.permission.denied"));
         }
     }
 
     public void canManageSubTask(User user, Plan plan) {
-        if (notExistsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.All, PlanRole.EDITOR))
-                && !plan.getOwner().equals(user)) {
+        if (!(planMemberRepository.existsByMemberAndPlanAndRoleIn(user, plan, List.of(PlanRole.All, PlanRole.EDITOR))
+                || plan.getOwner().equals(user))) {
             throw new RuntimeException(messageUtils.getMessage("subtask.update.permission.denied"));
         }
     }
 
-    private boolean notExistsByMemberAndPlanAndRoleIn(User member, Plan plan, Collection<PlanRole> roles) {
-        return !planMemberRepository.existsByMemberAndPlanAndRoleIn(member, plan, roles);
+    public void canCreateComment(Plan plan, Task task, User creator) {
+        if (plan == null) plan = task.getPlan();
+        if (!(plan.getOwner().equals(creator)
+                || planMemberRepository.existsByMemberAndPlanAndRoleIn(creator, plan,  List.of(PlanRole.All, PlanRole.EDITOR)))) {
+            throw new RuntimeException(messageUtils.getMessage("comment.create.permission.denied"));
+        }
+    }
+
+    public void canUpdateAndDeleteComment(Comment comment, User creator, Plan plan, Task task) {
+        if (plan == null) plan = task.getPlan();
+        boolean hasRoleOrPlanOwner = plan.getOwner().equals(creator)
+                || planMemberRepository.existsByMemberAndPlanAndRoleIn(creator, plan, List.of(PlanRole.All, PlanRole.EDITOR));
+        if (!(comment.getCreator().equals(creator) && hasRoleOrPlanOwner)) {
+            throw new RuntimeException(messageUtils.getMessage("comment.update.permission.denied"));
+        }
+    }
+
+    public void canViewComment(Plan plan, Task task, User member) {
+        if (plan == null) plan = task.getPlan();
+        if (!(plan.getOwner().equals(member) || planMemberRepository.existsByMemberAndPlan(member, plan))) {
+            throw new RuntimeException(messageUtils.getMessage("comment.view.permission.denied"));
+        }
     }
 }
