@@ -61,7 +61,7 @@ public class SubTaskServiceImpl implements SubTaskService {
     @Override
     public List<SubTaskResponse> getAllSubTasksByTaskId(Long taskId) {
         Task task = taskRepository.findById(taskId).orElseThrow(() -> new TaskNotFoundException(messageUtils.getMessage("task.not.found")));
-        permissionValidate.accessTaskOrSubTask(customUserDetailsService.getCurrentUser(), task.getPlan());
+        permissionValidate.canViewSubTask(customUserDetailsService.getCurrentUser(), task.getPlan());
         return subTaskRepository.findAllByTask_IdOrderByCreatedAtDesc(taskId)
                 .stream().map(subTaskMapper::toResponse)
                 .collect(Collectors.toList());

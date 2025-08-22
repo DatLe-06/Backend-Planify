@@ -3,7 +3,6 @@ package org.example.backend.service.plan.member;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import org.example.backend.constant.Action;
 import org.example.backend.constant.PlanRole;
 import org.example.backend.constant.Type;
@@ -28,7 +27,6 @@ import org.example.backend.utils.MessageUtils;
 import org.example.backend.validation.PermissionValidate;
 import org.springframework.stereotype.Service;
 
-import java.util.Collection;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,7 +64,7 @@ public class PlanMemberServiceImpl implements PlanMemberService {
 
         PlanMember planMember = planMemberMapper.toEntityForCreate(plan, member, PlanRole.valueOf(request.getRole()));
 
-        permissionValidate.canAddOrUpdateMember(user, plan);
+        permissionValidate.canCreateAndUpdateMember(user, plan);
         planMemberRepository.save(planMember);
         historyService.createHistory(Type.PLAN, request.getPlanId(), plan.getTitle(), Action.Member.ADD, user);
         return planMemberMapper.toResponse(planMember, request.getPlanId(), profile, request.getRole());
@@ -90,7 +88,7 @@ public class PlanMemberServiceImpl implements PlanMemberService {
 
         planMemberMapper.toEntityForUpdate(planMember, request.getRole());
 
-        permissionValidate.canAddOrUpdateMember(user, plan);
+        permissionValidate.canCreateAndUpdateMember(user, plan);
         planMemberRepository.save(planMember);
         historyService.createHistory(Type.PLAN, request.getPlanId(), plan.getTitle(), Action.Member.UPDATE_ROLE, user);
 

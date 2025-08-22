@@ -2,15 +2,20 @@ package org.example.backend.entity;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 @Entity
 @Table(name = "comments")
 @Getter
 @Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +25,7 @@ public class Comment {
     @Column(nullable = false)
     private String content;
 
-    @Column(nullable = false)
+    private LocalDateTime createdAt;
     private LocalDateTime lastEdit;
 
     @ManyToOne
@@ -31,7 +36,18 @@ public class Comment {
     @JoinColumn(name = "plan_id")
     private Plan plan;
 
-    @OneToOne
+    @ManyToMany
+    @JoinTable(
+            name = "comment_mentions",
+            joinColumns = @JoinColumn(name = "comment_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id"),
+            uniqueConstraints = {
+                    @UniqueConstraint(columnNames = {"comment_id", "user_id"})
+            }
+    )
+    private Set<User> mentions;
+
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User author;
+    private User creator;
 }

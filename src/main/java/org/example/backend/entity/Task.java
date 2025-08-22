@@ -42,7 +42,7 @@ public class Task {
     )
     private Set<User> members = new HashSet<>();
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "plan_id")
     private Plan plan;
 

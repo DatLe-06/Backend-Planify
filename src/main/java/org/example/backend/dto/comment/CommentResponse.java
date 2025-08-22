@@ -13,7 +13,8 @@ public class CommentResponse {
     private Long id;
     private String content;
     private LocalDateTime createAt;
-    private String authorName;
+    private LocalDateTime lastEdit;
+    private String creatorName;
     private Long taskId;
-    private Long projectId;
+    private Long planId;
 }

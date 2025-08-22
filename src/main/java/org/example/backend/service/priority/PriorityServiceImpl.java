@@ -80,6 +80,5 @@ public class PriorityServiceImpl implements PriorityService {
             priorities = priorityRepository.getAllByCreatedByAndTypeOrderByOrderPriorityDescNameAsc(user, type);
         }
         return priorities.stream().map(priorityMapper::toResponse).collect(Collectors.toCollection(LinkedHashSet::new));
-
     }
 }
