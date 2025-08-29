@@ -1,8 +1,7 @@
 package org.example.backend.mapper;
 
-import org.example.backend.dto.task.CreateTaskRequest;
+import org.example.backend.dto.task.TaskRequest;
 import org.example.backend.dto.task.TaskResponse;
-import org.example.backend.dto.task.UpdateTaskRequest;
 import org.example.backend.dto.task.sub.SubTaskResponse;
 import org.example.backend.entity.*;
 import org.springframework.stereotype.Component;
@@ -43,36 +42,20 @@ public class TaskMapper {
         return response;
     }
 
-    public void toEntityForCreate (
-            CreateTaskRequest request, Status status, Priority priority, Set<User> members,
+    public void toEntity(
+            TaskRequest request, Status status, Priority priority, Set<User> members,
             Plan plan, Set<Tag> tags, User createdBy, Task task) {
         task.setTitle(request.getTitle());
-        if (request.getDescription() != null) task.setDescription(request.getDescription());
-
+        task.setDescription(request.getDescription());
         task.setStartDate(request.getStartDate());
         task.setEndDate(request.getEndDate());
         task.setCreatedAt(LocalDateTime.now());
         task.setUpdatedAt(LocalDateTime.now());
         task.setStatus(status);
         task.setPriority(priority);
-        if (!members.isEmpty()) task.setMembers(members);
-        if (!tags.isEmpty()) task.setTags(tags);
+        task.setMembers(members);
+        task.setTags(tags);
         task.setPlan(plan);
         task.setCreatedBy(createdBy);
-    }
-
-    public void toEntityForUpdate(
-            UpdateTaskRequest request, Status status,
-            Priority priority, Set<User> members,
-            Set<Tag> tags, Task task) {
-        task.setTitle(request.getTitle());
-        if (request.getDescription() != null) task.setDescription(request.getDescription());
-        if (request.getStartDate() != null) task.setStartDate(request.getStartDate());
-        if (request.getEndDate() != null) task.setEndDate(request.getEndDate());
-        task.setUpdatedAt(LocalDateTime.now());
-        if (status != null) task.setStatus(status);
-        if (priority != null) task.setPriority(priority);
-        if (!members.isEmpty()) task.setMembers(members);
-        if (!tags.isEmpty()) task.setTags(tags);
     }
 }

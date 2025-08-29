@@ -37,7 +37,7 @@ public class CommentController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping(value = "/{taskId}/{planId}")
+    @GetMapping("/{taskId}/{planId}")
     public ResponseEntity<Set<CommentResponse>> getAllComment(
             @Valid GetCommentsRequest request, Pageable pageable
     ) {

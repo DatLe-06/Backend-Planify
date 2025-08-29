@@ -8,7 +8,7 @@ import org.example.backend.constant.CloudinaryTarget;
 import org.example.backend.entity.User;
 import org.example.backend.exception.custom.UploadException;
 import org.example.backend.utils.MessageUtils;
-import org.example.backend.utils.Utils;
+import org.example.backend.utils.OtherUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,7 +24,7 @@ public class UploadService {
     private final Cloudinary cloudinary;
 
     public String upload(MultipartFile file, User user, CloudinaryTarget target) {
-        String folderPath = "Planify/" + Utils.generateFolderName(user.getEmail()) + "/" + target;
+        String folderPath = "Planify/" + OtherUtils.generateFolderName(user.getEmail()) + "/" + target;
         String name = Objects.requireNonNull(file.getOriginalFilename()).split("\\.")[0];
 
         try {
@@ -41,7 +41,6 @@ public class UploadService {
 
             return uploadResult.get("public_id").toString();
         } catch (IOException e) {
-            System.err.println(e);
             throw new UploadException(messageUtils.getMessage("upload.fail"));
         }
     }

@@ -2,7 +2,9 @@ package org.example.backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 import java.util.HashSet;
@@ -12,11 +14,14 @@ import java.util.Set;
 @Setter
 @Entity
 @Table(name = "tasks")
+@SoftDelete(columnName = "is_deleted")
+@NoArgsConstructor
 public class Task {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 100, nullable = false)
     private String title;
     private String description;
 
@@ -57,4 +62,20 @@ public class Task {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User createdBy;
+
+    public Task(Task task) {
+        this.id = task.getId();
+        this.title = task.getTitle();
+        this.description = task.getDescription();
+        this.createdAt = task.getCreatedAt();
+        this.updatedAt = task.getUpdatedAt();
+        this.createdBy = task.getCreatedBy();
+        this.startDate = task.getStartDate();
+        this.endDate = task.getEndDate();
+        this.status = task.getStatus();
+        this.priority = task.getPriority();
+        this.members = task.getMembers();
+        this.plan = task.getPlan();
+        this.tags = task.getTags();
+    }
 }

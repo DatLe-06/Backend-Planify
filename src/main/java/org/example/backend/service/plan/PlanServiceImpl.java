@@ -20,10 +20,13 @@ import org.example.backend.service.priority.PriorityServiceImpl;
 import org.example.backend.service.tag.TagServiceImpl;
 import org.example.backend.service.user.UserService;
 import org.example.backend.utils.MessageUtils;
+import org.example.backend.utils.ReflectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -32,12 +35,12 @@ import java.util.stream.Collectors;
 public class PlanServiceImpl implements PlanService {
     private final PlanRepository planRepository;
     private final MessageUtils messageUtils;
-    private final HistoryService historyService;
     private final PlanMapper planMapper;
     private final UploadService uploadService;
     private final UserService userService;
     private final PriorityServiceImpl priorityService;
     private final TagServiceImpl tagServiceImpl;
+    private final HistoryService historyService;
 
     @Override
     public Plan findById(Long id) {
@@ -48,52 +51,80 @@ public class PlanServiceImpl implements PlanService {
     @Transactional
     @Override
     public PlanResponse create(AddPlanRequest request) {
-        User user = userService.getCurrentUser();
+        User creator = userService.getCurrentUser();
 
         validateDuplicateTitle(request.getTitle(), null);
 
         Plan plan = new Plan();
-        String coverPublicId = handleCoverUpload(request.getCoverFile(), null, user);
+        String coverPublicId = handleCoverUpload(request.getCoverFile(), null, creator);
         Priority priority = handlePriority(request);
         Set<Tag> tags = handleTags(request);
 
-        planMapper.toEntity(request, priority, tags, coverPublicId, user, plan);
-        planRepository.save(plan);
+        planMapper.toEntity(request, priority, tags, coverPublicId, creator, plan);
+        Plan createdPlan = planRepository.save(plan);
 
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.CREATE, plan.getOwner());
+        historyService.createHistory(createdPlan.getId(), createdPlan.getTitle(), Type.PLAN, Action.Plan.CREATE, creator, Collections.emptyMap());
         return planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(coverPublicId));
     }
 
     @Transactional
     @Override
     public PlanResponse update(Long id, UpdatePlanRequest request) {
-        User user = userService.getCurrentUser();
+        User creator = userService.getCurrentUser();
         Plan plan = findById(id);
+        Plan oldPlan = new Plan();
 
         validateDuplicateTitle(request.getTitle(), id);
 
-        String coverPublicId = handleCoverUpload(request.getCoverFile(), plan.getCoverPublicId(), user);
+        String coverPublicId = handleCoverUpload(request.getCoverFile(), plan.getCoverPublicId(), creator);
         Priority priority = handlePriority(request);
         Set<Tag> tags = handleTags(request);
 
-        planMapper.toEntity(request, priority, tags, coverPublicId, user, plan);
+        planMapper.toEntity(request, priority, tags, coverPublicId, creator, plan);
+        Map<String, String[]> changes = null;
+        try {
+            changes = ReflectionUtils.detectChanges(oldPlan, plan);
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
 
-        planRepository.save(plan);
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.UPDATE, plan.getOwner());
+        if (changes.isEmpty()) throw new IllegalArgumentException(messageUtils.getMessage("plan.nothing.change"));
+
+        Plan updatedPlan = planRepository.save(plan);
+        historyService.createHistory(updatedPlan.getId(), updatedPlan.getTitle(), Type.PLAN, Action.Plan.UPDATE, creator, changes);
         return planMapper.toResponse(plan, uploadService.buildCloudinaryUrl(coverPublicId));
     }
 
     @Transactional
     @Override
-    public String delete(Long id) {
+    public PlanResponse restore(Long id) {
+        User creator = userService.getCurrentUser();
+        Plan plan = planRepository.findPlanSoftDeletedById(id).orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
+        historyService.createHistory(plan.getId(), plan.getTitle(), Type.PLAN, Action.Plan.RESTORE, creator, Collections.emptyMap());
+        planRepository.restore(id);
+        Plan restoredPlan = findById(id);
+        return planMapper.toResponse(restoredPlan, uploadService.buildCloudinaryUrl(plan.getCoverPublicId()));
+    }
+
+    @Transactional
+    @Override
+    public void softDelete(Long id) {
+        User creator = userService.getCurrentUser();
         Plan plan = findById(id);
+        historyService.createHistory(plan.getId(), plan.getTitle(), Type.PLAN, Action.Plan.SOFT_DELETE, creator, Collections.emptyMap());
+        planRepository.delete(plan);
+    }
+
+    @Transactional
+    @Override
+    public void hardDelete(Long id) {
+        User creator = userService.getCurrentUser();
+        Plan plan = planRepository.findPlanSoftDeletedById(id).orElseThrow(() -> new PlanNotFoundException(messageUtils.getMessage("plan.not.found")));
         String coverPublicId = plan.getCoverPublicId();
         if (coverPublicId != null) uploadService.delete(coverPublicId);
 
-        History history = historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Plan.DELETE, plan.getOwner());
-        planRepository.delete(plan);
-
-        return messageUtils.getMessage("delete.plan.success", history.getName());
+        historyService.createHistory(plan.getId(), plan.getTitle(), Type.PLAN, Action.Plan.HARD_DELETE, creator, Collections.emptyMap());
+        planRepository.hardDelete(plan.getId());
     }
 
     @Override

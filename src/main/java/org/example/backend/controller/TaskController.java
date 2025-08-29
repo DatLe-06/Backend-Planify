@@ -10,8 +10,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-
 @RestController
 @RequestMapping("/tasks")
 @RequiredArgsConstructor
@@ -25,22 +23,29 @@ public class TaskController {
 
     @PutMapping("/{id}")
     public ResponseEntity<TaskResponse> update(@PathVariable Long id, @Valid @RequestBody UpdateTaskRequest request) {
-        return ResponseEntity.ok(taskService.updateTask(id, request));
+        return ResponseEntity.ok(taskService.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteTask(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(taskService.deleteTask(id));
+    @DeleteMapping("/hard/{id}")
+    public ResponseEntity<String> hardDelete(@PathVariable Long id) {
+        taskService.hardDelete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @DeleteMapping("/soft/{id}")
+    public ResponseEntity<String> softDelete(@PathVariable Long id) {
+        taskService.softDelete(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/restore/{id}")
+    public ResponseEntity<TaskResponse> restore(@PathVariable Long id) {
+        return ResponseEntity.ok(taskService.restore(id));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<TaskResponse> getTask(@PathVariable Long id) {
-        return ResponseEntity.ok(taskService.getTask(id));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<TaskResponse>> getAllTasks() {
-        return ResponseEntity.ok(taskService.getAllTasks());
+    public ResponseEntity<TaskResponse> getById(@PathVariable Long id) { 
+        return ResponseEntity.ok(taskService.getById(id));
     }
 }
 

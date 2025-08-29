@@ -3,9 +3,7 @@ package org.example.backend.service.plan.member;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import org.example.backend.constant.Action;
 import org.example.backend.constant.PlanRole;
-import org.example.backend.constant.Type;
 import org.example.backend.dto.plan.member.CreatePlanMemberRequest;
 import org.example.backend.dto.plan.member.PlanMemberResponse;
 import org.example.backend.dto.plan.member.UpdatePlanMemberRequest;
@@ -21,7 +19,6 @@ import org.example.backend.repository.PlanMemberRepository;
 import org.example.backend.repository.PlanRepository;
 import org.example.backend.repository.UserRepository;
 import org.example.backend.service.UploadService;
-import org.example.backend.service.history.HistoryService;
 import org.example.backend.service.user.UserService;
 import org.example.backend.utils.MessageUtils;
 import org.example.backend.validation.PermissionValidate;
@@ -36,7 +33,6 @@ public class PlanMemberServiceImpl implements PlanMemberService {
     private final MessageUtils messageUtils;
     private final UploadService uploadService;
     private final UserService userService;
-    private final HistoryService historyService;
     private final PlanMemberRepository planMemberRepository;
     private final PlanRepository planRepository;
     private final UserRepository userRepository;
@@ -66,7 +62,6 @@ public class PlanMemberServiceImpl implements PlanMemberService {
 
         permissionValidate.canCreateAndUpdateMember(user, plan);
         planMemberRepository.save(planMember);
-        historyService.createHistory(Type.PLAN, request.getPlanId(), plan.getTitle(), Action.Member.ADD, user);
         return planMemberMapper.toResponse(planMember, request.getPlanId(), profile, request.getRole());
     }
 
@@ -90,7 +85,6 @@ public class PlanMemberServiceImpl implements PlanMemberService {
 
         permissionValidate.canCreateAndUpdateMember(user, plan);
         planMemberRepository.save(planMember);
-        historyService.createHistory(Type.PLAN, request.getPlanId(), plan.getTitle(), Action.Member.UPDATE_ROLE, user);
 
         return planMemberMapper.toResponse(planMember, plan.getId(), profile, request.getRole());
     }
@@ -98,11 +92,9 @@ public class PlanMemberServiceImpl implements PlanMemberService {
     @Transactional
     @Override
     public void delete(Long id) {
-        User user = userService.getCurrentUser();
-        PlanMember planMember = planMemberRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(messageUtils.getMessage("plan.member.not.found")));
-        Plan plan = planMember.getPlan();
-        historyService.createHistory(Type.PLAN, plan.getId(), plan.getTitle(), Action.Member.REMOVE, user);
+        if (planMemberRepository.existsById(id)) {
+            throw new EntityNotFoundException(messageUtils.getMessage("plan.member.not.found"));
+        }
         planMemberRepository.deleteById(id);
     }
 
