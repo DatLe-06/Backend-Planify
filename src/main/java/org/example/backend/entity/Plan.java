@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.example.backend.constant.Color;
+import org.hibernate.annotations.SoftDelete;
 
 import java.time.LocalDateTime;
 import java.util.Set;
@@ -12,6 +13,7 @@ import java.util.Set;
 @Table(name = "plans")
 @Getter
 @Setter
+@SoftDelete(columnName = "is_deleted")
 public class Plan {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

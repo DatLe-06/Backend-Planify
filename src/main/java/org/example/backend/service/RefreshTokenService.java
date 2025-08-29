@@ -7,8 +7,7 @@ import org.example.backend.entity.User;
 import org.example.backend.exception.custom.UserNotFoundException;
 import org.example.backend.repository.RefreshTokenRepository;
 import org.example.backend.repository.UserRepository;
-import org.example.backend.utils.Utils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.backend.utils.OtherUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -46,7 +45,7 @@ public class RefreshTokenService {
 
         String token;
         do {
-            token = Utils.generateRefreshToken(length, characters);
+            token = OtherUtils.generateRefreshToken(length, characters);
         } while (refreshTokenRepository.existsRefreshTokenByToken(token));
         refreshToken.setToken(token);
 

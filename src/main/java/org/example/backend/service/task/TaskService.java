@@ -4,13 +4,12 @@ import org.example.backend.dto.task.CreateTaskRequest;
 import org.example.backend.dto.task.TaskResponse;
 import org.example.backend.dto.task.UpdateTaskRequest;
 
-import java.util.List;
-
 public interface TaskService {
     TaskResponse create(CreateTaskRequest request);
-    TaskResponse updateTask(Long id, UpdateTaskRequest request);
-    String deleteTask(Long id);
-    TaskResponse getTask(Long id);
-    List<TaskResponse> getAllTasks();
+    TaskResponse update(Long id, UpdateTaskRequest request);
+    void hardDelete(Long id);
+    TaskResponse getById(Long id);
+    void softDelete(Long id);
+    TaskResponse restore(Long id);
 }
 

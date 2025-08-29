@@ -6,6 +6,7 @@ import org.example.backend.dto.plan.AddPlanRequest;
 import org.example.backend.dto.plan.PlanResponse;
 import org.example.backend.dto.plan.UpdatePlanRequest;
 import org.example.backend.service.plan.PlanServiceImpl;
+import org.example.backend.utils.MessageUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class PlanController {
     private final PlanServiceImpl planService;
+    private final MessageUtils messageUtils;
 
     @PostMapping
     public ResponseEntity<?> create(@Valid @ModelAttribute AddPlanRequest request) {
@@ -28,9 +30,21 @@ public class PlanController {
         return ResponseEntity.ok(planService.update(id, request));
     }
 
-    @DeleteMapping("/{id}")
-    public ResponseEntity<?> delete(@PathVariable Long id) {
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(planService.delete(id));
+    @GetMapping("/restore/{id}")
+    public ResponseEntity<?> restore(@PathVariable Long id) {
+        return ResponseEntity.ok(planService.restore(id));
+    }
+
+    @DeleteMapping("/soft/{id}")
+    public ResponseEntity<?> softDelete(@PathVariable Long id) {
+        planService.softDelete(id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).body(messageUtils.getMessage("delete.plan.success"));
+    }
+
+    @DeleteMapping("/hard/{id}")
+    public ResponseEntity<?> hardDelete(@PathVariable Long id) {
+        planService.hardDelete(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")

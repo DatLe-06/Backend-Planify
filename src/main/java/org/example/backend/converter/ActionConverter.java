@@ -18,12 +18,6 @@ public class ActionConverter implements AttributeConverter<Enum<?>, String> {
         for (Action.Plan e : Action.Plan.values()) {
             STRING_TO_ENUM.put("PLAN_" + e.name(), e);
         }
-        for (Action.Tag e : Action.Tag.values()) {
-            STRING_TO_ENUM.put("TAG_" + e.name(), e);
-        }
-        for (Action.Member e : Action.Member.values()) {
-            STRING_TO_ENUM.put("MEMBER_" + e.name(), e);
-        }
     }
 
     @Override
@@ -31,8 +25,6 @@ public class ActionConverter implements AttributeConverter<Enum<?>, String> {
         if (attribute == null) return null;
         if (attribute instanceof Action.Task) return "TASK_" + attribute.name();
         if (attribute instanceof Action.Plan) return "PLAN_" + attribute.name();
-        if (attribute instanceof Action.Tag) return "TAG_" + attribute.name();
-        if (attribute instanceof Action.Member) return "MEMBER_" + attribute.name();
         throw new IllegalArgumentException("Unknown enum type: " + attribute.getClass());
     }
 
